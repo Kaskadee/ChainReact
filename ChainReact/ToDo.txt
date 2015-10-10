@@ -1,0 +1,25 @@
+﻿1. Game Settings (5% done)
+  - add game settings menu (x)
+   -> player configuration (!)
+   -> texture configuration (?)
+
+2. Custom Maps (?)
+  - map editor (?)
+    -> custom premade layouts (?)
+  - de-/serialization (?)
+
+3. Multiplayer Support (!)
+  - multiplayer mode (up to 4(?) players) (!)
+  - custom map (?)
+
+4. KI (maybe) (?)
+  - add game bots (?)
+   -> different difficulties (?)
+
+5. Make game Open-Source (✓)
+  - upload to GitHub (✓)
+
+  x = In Progress
+  ? = Not scheduled
+  ! = Scheduled
+  ✓ = Done
