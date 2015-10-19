@@ -12,6 +12,7 @@ using ChainReact.Core.Utilities;
 using ChainReact.Input;
 using ChainReact.Scenes;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.Rendering.OpenGL;
@@ -44,9 +45,10 @@ namespace ChainReact
         private Texture2D _wabeBorder;
 
         private Texture2D[] _splittedExplosion;
+        private SoundEffect _explosionSound;
         private Texture2D _explosion;
+        
         private AnimatedSpriteSheet _explosionAnimation;
-        private MultiAnimation _testAnimation;
         #endregion
 
         #region Fonts
@@ -80,7 +82,7 @@ namespace ChainReact
             _spheresUnpowered = Content.Load<Texture2D>("Textures/Unpowered");
             _spheresPowered = Content.Load<Texture2D>("Textures/Powered");
             _unowned = Content.Load<Texture2D>("Textures/Default");
-
+            //_explosionSound = Content.Load<SoundEffect>("Sounds/ExplosionSound");
             _explosion = Content.Load<Texture2D>("Textures/Explosion"); 
             AssignExplosionAnimation();
             _playerTemplate = Content.Load<Texture2D>("Textures/Default");
@@ -109,9 +111,6 @@ namespace ChainReact
                     new Animation(_explosionAnimation, new Rectangle(-32, 0, 32, 32)),
                     new Animation(_explosionAnimation, new Rectangle(0, -32, 32, 32))
                }, 3);
-            var multi = new MultiAnimation(this,
-                new List<Animation> {new Animation(_explosionAnimation, new Rectangle(32, 0, 32, 32))}, 3);
-            _testAnimation = multi;
             _game = new ChainReactGame(this, new List<MultiAnimation>() { twoExplosion, threeExplosion, fourExplosion }, players, new Vector2(WabeSize, ScalingFactor));
 
             var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
@@ -226,8 +225,6 @@ namespace ChainReact
                             batch.DrawTexture(texture,
                                 new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut));
                         }
-
-                        //batch.DrawTexture(_fieldBorder, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut));
                     }
                 }
 
@@ -238,18 +235,18 @@ namespace ChainReact
             if (!string.IsNullOrEmpty(_lastMessage))
             {
                 batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, _default,
-                    new Vector2(0, 700), Color.Black);
+                    new Vector2(96, 680), Color.Black);
             }
             else
             {
                 if (!string.IsNullOrEmpty(_game.Message))
                 {
-                    batch.DrawString(_game.Message, _default, new Vector2(0, 700), Color.Black);
+                    batch.DrawString(_game.Message, _default, new Vector2(96, 680), Color.Black);
                 }
             }
             if (_game?.CurrentPlayer != null)
             {
-                batch.DrawString(_game.CurrentPlayer.Name + "'s turn", _default, new Vector2(96, 50), Color.Black);
+                batch.DrawString(_game.CurrentPlayer.Name + $"'s turn ({_game.CurrentPlayer.GetColorString()})", _default, new Vector2(96, 60), Color.Black);
             }
             if (SceneManager.ActiveScene == null)
             {

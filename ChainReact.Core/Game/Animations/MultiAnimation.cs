@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
@@ -12,14 +13,13 @@ namespace ChainReact.Core.Game.Animations
         private Sharpex2D.Framework.Game _game;
         private int _loops;
 
+        public SoundPlayer Sound { get; set; }
         public List<Animation> Animations { get; } 
         public int Loops { get; }
         public Vector2 AbsolutePosition { get; set; }
         public bool IsRelative { get; set; } = true;
         public bool IsRunning { get; private set; }
         public bool AllFinished { get; private set; }
-
-        public event EventHandler AnimationFinished;
 
         public MultiAnimation(Sharpex2D.Framework.Game game, IEnumerable<Animation> animations, int loops)
         {
@@ -41,7 +41,6 @@ namespace ChainReact.Core.Game.Animations
                 {
                     Stop();
                     AllFinished = true;
-                    AnimationFinished?.Invoke(this, new EventArgs());
                     return;
                 }
                 _loops++;

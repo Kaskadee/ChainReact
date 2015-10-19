@@ -62,7 +62,13 @@
     </Reference>
     <Reference Include="Sharpex2D, Version=2.1.7.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\GitHub\Sharpex2D\Sharpex2D\bin\Debug\Sharpex2D.dll</HintPath>
+      <HintPath>..\ChainReact\Libs\Sharpex2D.dll</HintPath>
+    </Reference>
+    <Reference Include="Sharpex2D.Audio.CSCore">
+      <HintPath>..\ChainReact\Libs\Sharpex2D.Audio.CSCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Sharpex2D.Framework.Rendering.DirectX">
+      <HintPath>..\ChainReact\Libs\Sharpex2D.Framework.Rendering.DirectX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

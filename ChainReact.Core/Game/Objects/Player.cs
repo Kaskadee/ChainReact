@@ -28,5 +28,26 @@ namespace ChainReact.Core.Game.Objects
             Wins = wins;
             Color = color;
         }
+
+        public string GetColorString()
+        {
+            if (Color.Equals(Color.Red))
+            {
+                return "Red";
+            }
+            if (Color.Equals(Color.Green))
+            {
+                return "Green";
+            }
+            if (Color.Equals(Color.Blue))
+            {
+                return "Blue";
+            }
+            if (Color.Equals(Color.Orange))
+            {
+                return "Orange";
+            }
+            return "Unknown";
+        }
     }
 }
