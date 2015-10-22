@@ -82,7 +82,7 @@ namespace ChainReact
             _spheresUnpowered = Content.Load<Texture2D>("Textures/Unpowered");
             _spheresPowered = Content.Load<Texture2D>("Textures/Powered");
             _unowned = Content.Load<Texture2D>("Textures/Default");
-            //_explosionSound = Content.Load<SoundEffect>("Sounds/ExplosionSound");
+            _explosionSound = new SoundEffect(Content.Load<Sound>("Sounds/ExplosionSound"));
             _explosion = Content.Load<Texture2D>("Textures/Explosion"); 
             AssignExplosionAnimation();
             _playerTemplate = Content.Load<Texture2D>("Textures/Default");
@@ -93,24 +93,24 @@ namespace ChainReact
             var twoExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {
-                    new Animation(_explosionAnimation, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(0, 32, 32, 32))
-                }, 3);
+                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(_explosion, new Rectangle(0, 32, 32, 32))
+                }, 3, _explosionSound);
             var threeExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {
-                    new Animation(_explosionAnimation, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(0, 32, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(-32, 0, 32, 32))
-                }, 3);
+                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(_explosion, new Rectangle(0, 32, 32, 32)),
+                    new Animation(_explosion, new Rectangle(-32, 0, 32, 32))
+                }, 3, _explosionSound);
             var fourExplosion = new MultiAnimation(this,
                new List<Animation>
                {
-                    new Animation(_explosionAnimation, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(0, 32, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(-32, 0, 32, 32)),
-                    new Animation(_explosionAnimation, new Rectangle(0, -32, 32, 32))
-               }, 3);
+                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(_explosion, new Rectangle(0, 32, 32, 32)),
+                    new Animation(_explosion, new Rectangle(-32, 0, 32, 32)),
+                    new Animation(_explosion, new Rectangle(0, -32, 32, 32))
+               }, 3, _explosionSound);
             _game = new ChainReactGame(this, new List<MultiAnimation>() { twoExplosion, threeExplosion, fourExplosion }, players, new Vector2(WabeSize, ScalingFactor));
 
             var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);

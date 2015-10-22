@@ -6,39 +6,52 @@ using ChainReact.Core.Game;
 using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Sharpex2D.Framework;
-using Sharpex2D.Framework.Rendering;
-
 namespace ChainReact.Tests
 {
     [TestClass]
     public class CoreTests
     {
         [TestMethod]
-        public void CombineDirectionEnum()
+        public void EnumerableReference()
         {
-            var direction = WabeDirection.Up | WabeDirection.Left;
-            var direction2 = WabeDirection.Up & WabeDirection.Down;
-            Debug.Assert(direction.HasFlag(WabeDirection.Up) && direction.HasFlag(WabeDirection.Left));
-            Debug.Assert(direction2.HasFlag(WabeDirection.Up) && direction2.HasFlag(WabeDirection.Left));
+            var foo1 = new Foo { Bar = "1"};
+            var foo2 = new Foo { Bar = "2" };
+            var foo3 = new Foo {Bar = "3"};
+            var fooList = new List<Foo> { foo1, foo2, foo3 };
+            var fooMachine1 = new FooMachine();
+            var fooMachine2 = new FooMachine();
+            fooMachine1.UseList(fooList, false);
+            fooMachine2.UseList(fooList, true);
+            fooMachine1.UseList(fooList, false);
         }
+    }
 
-        [TestMethod]
-        public void OperatorTest()
+    public class FooMachine
+    {
+        public void UseList(List<Foo> fooList, bool change)
         {
-            for (var i = 0; i < 25; i++)
-                Console.WriteLine(((i + 1) & 1));
+            var random = new Random();
+            if (change)
+            {
+                foreach (var foo in fooList)
+                {
+                    foo.SetBar(random.Next(0, 1000000).ToString());
+                }
+            }
+            foreach (var foo in fooList)
+            {
+                Debug.WriteLine(foo.Bar);
+            }
         }
+    }
 
-        [TestMethod]
-        public void Vector2EqualsCheck()
+    public struct Foo
+    {
+        public string Bar { get; set; }
+
+        public void SetBar(string bar)
         {
-            var a = new Vector2(0, 0);
-            var b = Vector2.Zero;
-            Debug.Assert(a.Equals(b));
-            Debug.Assert(a == b, "a == b");
-            Debug.Assert(b == a, "b == a");
-            //Debug.Assert(a != b); // false
+            Bar = bar;
         }
     }
 }

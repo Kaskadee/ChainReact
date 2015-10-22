@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using ChainReact.Core.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Rendering;
@@ -13,7 +14,7 @@ namespace ChainReact.Core.Game.Animations
         private Sharpex2D.Framework.Game _game;
         private int _loops;
 
-        public SoundPlayer Sound { get; set; }
+        public SoundEffect Sound { get; set; }
         public List<Animation> Animations { get; } 
         public int Loops { get; }
         public Vector2 AbsolutePosition { get; set; }
@@ -21,8 +22,10 @@ namespace ChainReact.Core.Game.Animations
         public bool IsRunning { get; private set; }
         public bool AllFinished { get; private set; }
 
-        public MultiAnimation(Sharpex2D.Framework.Game game, IEnumerable<Animation> animations, int loops)
+        public MultiAnimation(Sharpex2D.Framework.Game game, IEnumerable<Animation> animations, int loops, SoundEffect effect)
         {
+            Sound = effect;
+            Sound.Initialize();
             _game = game;
             Animations = animations.ToList();
             Loops = loops;
@@ -47,7 +50,6 @@ namespace ChainReact.Core.Game.Animations
                 foreach (var ani in Animations)
                 {
                     ani.AnimationSheet.ActivateKeyframe(0);
-                    ani.AnimationSheet.Update(time);
                 }
                     
             }
@@ -95,13 +97,28 @@ namespace ChainReact.Core.Game.Animations
 
     public class Animation
     {
+        private readonly Texture2D _asset;
         public AnimatedSpriteSheet AnimationSheet { get; }
         public Rectangle Position { get; set; }
 
-        public Animation(AnimatedSpriteSheet sheet, Rectangle position)
+        public Animation(Texture2D sheet, Rectangle position)
         {
-            AnimationSheet = sheet;
+            _asset = sheet;
+            AnimationSheet = new AnimatedSpriteSheet(_asset);
+            for (var i = 0; i < 12; i++)
+            {
+                var x = 134 * i;
+                var kf = new Keyframe(new Rectangle(x, 0, 134, 134), 60f);
+                AnimationSheet.Add(kf);
+            }
+            AnimationSheet.Rectangle = new Rectangle(0, 0, 134, 134);
+            AnimationSheet.AutoUpdate = true;
             Position = position;
+        }
+
+        public Animation CopyFromAnimation()
+        {
+            return new Animation(_asset, Position);
         }
     }
 }

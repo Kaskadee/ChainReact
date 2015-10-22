@@ -64,7 +64,8 @@ namespace ChainReact.Core.Game.Field
             Fields = new WabeField[9];
             X = x;
             Y = y;
-            var ani = new MultiAnimation(game.Game, animation.Animations, animation.Loops);
+            var animations = animation.Animations.Select(templateAni => templateAni.CopyFromAnimation()).ToList();
+            var ani = new MultiAnimation(game.Game, animations, animation.Loops, animation.Sound);
             Animation = ani;
             Layout = new WabeLayout(this, new Vector2(0, 5));           
             switch (Type)
@@ -159,6 +160,7 @@ namespace ChainReact.Core.Game.Field
                     Animation.Start();
                     var actionList = new List<Action<GameTime>> { Explode, Animation.Update };
                     _id = _game.Queue.Add(actionList);
+                    Animation.Sound.Play();
                 }
 
 
