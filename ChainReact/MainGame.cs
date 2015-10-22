@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using ChainReact.Controls;
 using ChainReact.Controls.Base;
+using ChainReact.Core;
 using ChainReact.Core.Game;
 using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
-using ChainReact.Core.Utilities;
 using ChainReact.Input;
 using ChainReact.Scenes;
 using Sharpex2D.Framework;
@@ -29,34 +26,20 @@ namespace ChainReact
         #region Components
         private ChainReactGame _game;
         private InputManager _input;
+
+        private List<Player> _players; 
         #endregion
 
         #region Textures
-        private Texture2D _background;
-
-        private Texture2D _unusedFields;
-        private Texture2D _spheresUnpowered;
-        private Texture2D _spheresPowered;
-        private Texture2D _unowned;
-
-        private Texture2D _playerTemplate;
-
         private Texture2D _gameBorder;
         private Texture2D _wabeBorder;
-
-        private Texture2D[] _splittedExplosion;
-        private SoundEffect _explosionSound;
-        private Texture2D _explosion;
-        
-        private AnimatedSpriteSheet _explosionAnimation;
         #endregion
 
-        #region Fonts
-        private SpriteFont _default;
+        #region Animations
+        private List<MultiAnimation> _animations; 
         #endregion
 
         #region Scenes
-
         private MainMenuScene _mainMenuScene;
         #endregion
 
@@ -77,41 +60,49 @@ namespace ChainReact
 
         public override void LoadContent()
         {
-            _background = Content.Load<Texture2D>("Textures/Background");
-            _unusedFields = Content.Load<Texture2D>("Textures/Unused");
-            _spheresUnpowered = Content.Load<Texture2D>("Textures/Unpowered");
-            _spheresPowered = Content.Load<Texture2D>("Textures/Powered");
-            _unowned = Content.Load<Texture2D>("Textures/Default");
-            _explosionSound = new SoundEffect(Content.Load<Sound>("Sounds/ExplosionSound"));
-            _explosion = Content.Load<Texture2D>("Textures/Explosion"); 
-            AssignExplosionAnimation();
-            _playerTemplate = Content.Load<Texture2D>("Textures/Default");
+            var sound = Content.Load<Sound>("Sounds/ExplosionSound");
+            var soundEffect = new SoundEffect(sound);
+            var explosion = Content.Load<Texture2D>("Textures/Explosion");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "Unused", "Textures/Unused");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "Powered", "Textures/Powered");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "Unowned", "Textures/Default");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonMenu", "Textures/ButtonMenu");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonMenuHovered", "Textures/ButtonMenuHovered");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonSettings", "Textures/ButtonSettings");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonSettingsHovered", "Textures/ButtonMenuHovered");
+            ResourceManager.Instance.LoadResource<SpriteFont>(this, "ButtonFont", "Fonts/ButtonFont");
+            ResourceManager.Instance.LoadResource<SpriteFont>(this, "DefaultFont", "Fonts/Default");
 
+            ResourceManager.Instance.ImportResource("ExplosionSound", soundEffect);
+            ResourceManager.Instance.ImportResource("Explosion", explosion);
             // TODO Add player configuration
            
-            var players = new List<Player> { new Player(1, "Player1", Color.Green), new Player(2, "Player2", Color.Red) };
+            _players = new List<Player> { new Player(1, "Player1", Color.Green), new Player(2, "Player2", Color.Red) };
             var twoExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {
-                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosion, new Rectangle(0, 32, 32, 32))
-                }, 3, _explosionSound);
+                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(explosion, new Rectangle(0, 32, 32, 32))
+                }, 3, soundEffect);
             var threeExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {
-                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosion, new Rectangle(0, 32, 32, 32)),
-                    new Animation(_explosion, new Rectangle(-32, 0, 32, 32))
-                }, 3, _explosionSound);
-            var fourExplosion = new MultiAnimation(this,
+                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(explosion, new Rectangle(0, 32, 32, 32)),
+                    new Animation(explosion, new Rectangle(-32, 0, 32, 32))
+                }, 3, soundEffect);
+             var fourExplosion = new MultiAnimation(this,
                new List<Animation>
                {
-                    new Animation(_explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(_explosion, new Rectangle(0, 32, 32, 32)),
-                    new Animation(_explosion, new Rectangle(-32, 0, 32, 32)),
-                    new Animation(_explosion, new Rectangle(0, -32, 32, 32))
-               }, 3, _explosionSound);
-            _game = new ChainReactGame(this, new List<MultiAnimation>() { twoExplosion, threeExplosion, fourExplosion }, players, new Vector2(WabeSize, ScalingFactor));
+                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
+                    new Animation(explosion, new Rectangle(0, 32, 32, 32)),
+                    new Animation(explosion, new Rectangle(-32, 0, 32, 32)),
+                    new Animation(explosion, new Rectangle(0, -32, 32, 32))
+               }, 3, soundEffect);
+            _animations = new List<MultiAnimation> { twoExplosion, threeExplosion, fourExplosion };
+            _game = new ChainReactGame(this, _animations, _players, new Vector2(WabeSize, ScalingFactor));
 
             var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
             var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
@@ -119,24 +110,10 @@ namespace ChainReact
             _gameBorder = CreateBorderFromColor((int)fullWabeSizeX, (int)fullWabeSizeY, 3, Color.White);
 
             _input = new InputManager(this);
-            _default = Content.Load<SpriteFont>("Fonts/Default.xcf");
 
             _mainMenuScene = new MainMenuScene(this, _input);
             SceneManager.Add(_mainMenuScene);
             SceneManager.ActiveScene = _mainMenuScene;
-        }
-
-        private void AssignExplosionAnimation()
-        {
-            _explosionAnimation = new AnimatedSpriteSheet(_explosion);
-            for (var i = 0; i < 12; i++)
-            {
-                var x = 134 * i;
-                var kf = new Keyframe(new Rectangle(x, 0, 134, 134), 100f);
-                _explosionAnimation.Add(kf);
-            }
-            _explosionAnimation.Rectangle = new Rectangle(0, 0, 134, 134);
-            _explosionAnimation.AutoUpdate = true;
         }
 
         public override void Update(GameTime time)
@@ -180,13 +157,14 @@ namespace ChainReact
             }
             if (_game.GameOver && _input != null && _input.Reset.Value)
             {
-                _input = null;
-                LoadContent();
+                ResetGame();
             }
         }
 
         public override void Draw(SpriteBatch batch, GameTime time)
         {
+            var background = ResourceManager.Instance.GetResource<Texture2D>("Background");
+            var font = ResourceManager.Instance.GetResource<SpriteFont>("DefaultFont");
             batch.Begin();
             for (var x = 0; x < 11; x++)
             {
@@ -194,7 +172,7 @@ namespace ChainReact
                 {
                     var tileX = x * WabeSize * ScalingFactor;
                     var tileY = y * WabeSize * ScalingFactor;
-                    batch.DrawTexture(_background, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                    batch.DrawTexture(background, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
                 }
             }
             const float cut = ((float)WabeSize / 3) * ScalingFactor;
@@ -210,7 +188,7 @@ namespace ChainReact
                     for (var y = 0; y <= 2; y++)
                     {
                         var field = wabe.ConvertVector2ToWabeField(new Vector2(x, y));
-                        var texture = SelectTextureFromField(wabe.Owner, field);
+                        var texture = SelectTextureFromField(field);
                         var mutltiplicatorX = cut * x;
                         var mutltiplicatorY = cut * y;
                         if (field.Type == WabeFieldType.Center)
@@ -234,19 +212,19 @@ namespace ChainReact
             batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
             if (!string.IsNullOrEmpty(_lastMessage))
             {
-                batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, _default,
+                batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, font,
                     new Vector2(96, 680), Color.Black);
             }
             else
             {
                 if (!string.IsNullOrEmpty(_game.Message))
                 {
-                    batch.DrawString(_game.Message, _default, new Vector2(96, 680), Color.Black);
+                    batch.DrawString(_game.Message, font, new Vector2(96, 680), Color.Black);
                 }
             }
             if (_game?.CurrentPlayer != null)
             {
-                batch.DrawString(_game.CurrentPlayer.Name + $"'s turn ({_game.CurrentPlayer.GetColorString()})", _default, new Vector2(96, 60), Color.Black);
+                batch.DrawString(_game.CurrentPlayer.Name + $"'s turn ({_game.CurrentPlayer.GetColorString()}) ({_game.CurrentPlayer.Wins} Wins)", font, new Vector2(96, 60), Color.Black);
             }
             if (SceneManager.ActiveScene == null)
             {
@@ -259,18 +237,28 @@ namespace ChainReact
             batch.End();
         }
 
-        private Texture2D SelectTextureFromField(Player player, WabeField field)
+        private void ResetGame()
+        {
+            foreach (var player in _players)
+            {
+                player.ExecutedFirstPlace = false;
+                player.Out = false;
+            }
+            _game = new ChainReactGame(this, _animations, _players, new Vector2(WabeSize, ScalingFactor));
+        }
+
+        private Texture2D SelectTextureFromField(WabeField field)
         {
             switch (field.Type)
             {
                 case WabeFieldType.Unused:
-                    return _unusedFields;
+                    return ResourceManager.Instance.GetResource<Texture2D>("Unused");
                 case WabeFieldType.Unpowered:
-                    return _spheresUnpowered;
+                    return ResourceManager.Instance.GetResource<Texture2D>("Unpowered");
                 case WabeFieldType.Powered:
-                    return _spheresPowered;
+                    return ResourceManager.Instance.GetResource<Texture2D>("Powered");
                 case WabeFieldType.Center:
-                    return player == null ? _unowned : _playerTemplate;
+                    return ResourceManager.Instance.GetResource<Texture2D>("Unowned");
                 default:
                     return null;
             }

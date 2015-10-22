@@ -124,13 +124,14 @@ namespace ChainReact.Core.Game
             return true;
         }
 
-        public bool CheckWin()
+        public bool CheckWin(out Player winner)
         {
+            winner = null;
+            if (GameOver) return true;
             var wabeList = Wabes.Cast<Wabe>().ToList();
-            for (var i = Players.Count - 1; i >= 0; i--)
+            foreach (var player in Players)
             {
-                var player = Players[i];
-                if (!player.ExecutedFirstPlace) continue;
+                if (!player.ExecutedFirstPlace || player.Out) continue;
                 if (Wabes.Cast<Wabe>().Count(w => w.Owner == player) == 0)
                 {
                     var reason = $"{player.Name} don't have any more wabes and has been eliminated!";
@@ -139,25 +140,32 @@ namespace ChainReact.Core.Game
                     {
                         CurrentPlayer = Players.NextOf(CurrentPlayer);
                     }
-                    Players.RemoveAt(i);
+                    player.Out = true;
                 }
             }
-            if (Players.All(p => p.ExecutedFirstPlace) &&
-                !wabeList.Any(w => w.Owner != null && w.Owner != CurrentPlayer) || Players.Count == 1)
-            {
-                var reason = $"{CurrentPlayer.Name} is last man standing!";
-                GameOver = true;
-                Message = reason;
-                return true;
-            }
-            if (wabeList.Count(w => w.Owner != null && w.Owner == CurrentPlayer) >= 25)
-            {
-                var reason = $"{CurrentPlayer.Name} has captured 25 wabes.";
-                GameOver = true;
-                Message = reason;
-                return true;
-            }
            
+            foreach (var player in Players)
+            {
+                if (Players.All(p => p.ExecutedFirstPlace) &&
+                    !wabeList.Any(w => w.Owner != null && w.Owner != player) || Players.Count(p => !p.Out) == 1)
+                {
+                    var reason = $"{player.Name} is last man standing!";
+                    GameOver = true;
+                    Message = reason;
+                    winner = player;
+                    winner.Wins++;
+                    return true;
+                }
+                if (wabeList.Count(w => w.Owner != null && w.Owner == CurrentPlayer) >= 25)
+                {
+                    var reason = $"{player.Name} has captured 25 wabes.";
+                    GameOver = true;
+                    Message = reason;
+                    winner = player;
+                    winner.Wins++;
+                    return true;
+                }
+            }
             return false;
         }
 

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using ChainReact.Controls;
 using ChainReact.Controls.Base;
 using ChainReact.Controls.Base.Interfaces;
 using ChainReact.Input;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Content;
-using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.Rendering;
-using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Scenes
 {

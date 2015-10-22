@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ChainReact.Controls.Base;
+﻿using ChainReact.Controls.Base;
 using ChainReact.Input;
 using ChainReact.Scenes;
 using Sharpex2D.Framework;

@@ -145,14 +145,7 @@
     </Compile>
     <None Include="app.config" />
     <None Include="Content\Fonts\ButtonFont.font" />
-    <None Include="Content\Fonts\ButtonFont.font.old">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Content\Fonts\Default.font" />
-    <None Include="Content\Fonts\Default.font.old">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

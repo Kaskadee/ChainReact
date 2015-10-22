@@ -6,12 +6,13 @@ namespace ChainReact.Core.Game.Objects
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
-        public Color Color { get; private set; }
+        public Color Color { get; }
 
-        public int Score { get; private set; }
-        public int Wins { get; private set; }
+        public int Score { get; set; }
+        public int Wins { get; set; }
 
         public bool ExecutedFirstPlace { get; set; }
+        public bool Out { get; set; }
 
         public Player(int id, string name, Color color)
         {

@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using ChainReact.Controls;
 using ChainReact.Controls.Base;
 using ChainReact.Controls.Base.Interfaces;
-using ChainReact.Core.Utilities;
+using ChainReact.Core;
 using ChainReact.Input;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Content;
 using Sharpex2D.Framework.Rendering;
-using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Scenes
 {
@@ -27,7 +25,7 @@ namespace ChainReact.Scenes
             _input = input;
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
-            LoadContent(game.Content);
+            LoadContent();
         }
 
         public override void OnUpdate(GameTime gameTime)
@@ -57,14 +55,19 @@ namespace ChainReact.Scenes
             _settingsButton.Draw(spriteBatch, gameTime);
         }
 
-        public void LoadContent(ContentManager content)
+        public void LoadContent()
         {
-            _continuebutton = new ContinueButton(_game, ElementManager, "Textures/ButtonMenu", "Textures/ButtonMenuHovered", "Fonts/ButtonFont")
+            var buttonMenu = ResourceManager.Instance.GetResource<Texture2D>("ButtonMenu");
+            var buttonMenuHovered = ResourceManager.Instance.GetResource<Texture2D>("ButtonMenuHovered");
+            var buttonSettings = ResourceManager.Instance.GetResource<Texture2D>("ButtonSettings");
+            var buttonSettingsHovered = ResourceManager.Instance.GetResource<Texture2D>("ButtonSettingsHovered");
+            var buttonFont = ResourceManager.Instance.GetResource<SpriteFont>("ButtonFont");
+            _continuebutton = new ContinueButton(_game, ElementManager, buttonMenu, buttonMenuHovered, buttonFont)
             {
                 Bounds = new Rectangle(250, 200, 250, 50),
                 Text = "Continue"
             };
-            _settingsButton = new SettingsButton(_game, ElementManager, "Textures/ButtonSettings", "Textures/ButtonSettingsHovered", "Fonts/ButtonFont", _input)
+            _settingsButton = new SettingsButton(_game, ElementManager, buttonSettings, buttonSettingsHovered, buttonFont, _input)
             {
                 Bounds = new Rectangle(250, 275, 250, 50),
                 Text = "Settings"

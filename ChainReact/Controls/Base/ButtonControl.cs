@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using ChainReact.Controls.Base.Interfaces;
-using ChainReact.Scenes;
+﻿using ChainReact.Controls.Base.Interfaces;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.UI;

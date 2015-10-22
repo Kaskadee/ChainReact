@@ -151,7 +151,8 @@ namespace ChainReact.Core.Game.Field
                     var field = wabePair.Value;
                     wabe.Set(owner, field);
                 }
-                _game.CheckWin();
+                Player winner;
+                _game.CheckWin(out winner);
             }
             else
             {
@@ -178,7 +179,8 @@ namespace ChainReact.Core.Game.Field
             var field = Fields.First(i => i.Type == WabeFieldType.Unpowered);
             if (field != null) field.Type = WabeFieldType.Powered;
             if(Owner != owner) Owner = owner;
-            if (_game.CheckWin())
+            Player winner;
+            if (_game.CheckWin(out winner))
             {
                 return;
             }
@@ -195,7 +197,8 @@ namespace ChainReact.Core.Game.Field
             }
             if (field != null) field.Type = WabeFieldType.Powered;
             if (Owner != owner) Owner = owner;
-            if (_game.CheckWin())
+            Player winner;
+            if (_game.CheckWin(out winner))
             {
                 return;
             }
