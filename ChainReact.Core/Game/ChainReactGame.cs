@@ -15,10 +15,6 @@ namespace ChainReact.Core.Game
         public Sharpex2D.Framework.Game Game { get; private set; }
         public GameQueue Queue { get; }
 
-        private MultiAnimation _twoWabeExplosion;
-        private MultiAnimation _threeWabeExplosion;
-        private MultiAnimation _fourWabeExplosion;
-
         public Player CurrentPlayer { get; private set; }
         public List<Player> Players { get; }
         public Wabe[,] Wabes { get; }
@@ -32,9 +28,9 @@ namespace ChainReact.Core.Game
         {
             Game = game;
             Queue = new GameQueue();
-            _twoWabeExplosion = wabeExplosionAnimations[0];
-            _threeWabeExplosion = wabeExplosionAnimations[1];
-            _fourWabeExplosion = wabeExplosionAnimations[2];
+            var twoWabeExplosion = wabeExplosionAnimations[0];
+            var threeWabeExplosion = wabeExplosionAnimations[1];
+            var fourWabeExplosion = wabeExplosionAnimations[2];
             Players = players.OrderBy(p => p.Id).ToList();
             Wabes = new Wabe[6, 6];
             for (var x = 0; x <= 5; x++)
@@ -55,8 +51,8 @@ namespace ChainReact.Core.Game
                         type = WabeType.FourWabe;
                     }
                     var animation = (type == WabeType.TwoWabe)
-                        ? _twoWabeExplosion
-                        : (type == WabeType.ThreeWabe) ? _threeWabeExplosion : _fourWabeExplosion;
+                        ? twoWabeExplosion
+                        : (type == WabeType.ThreeWabe) ? threeWabeExplosion : fourWabeExplosion;
                     Wabes[x, y] = new Wabe(this, type, x, y, animation, size);
                 }
             }
@@ -146,8 +142,7 @@ namespace ChainReact.Core.Game
            
             foreach (var player in Players)
             {
-                if (Players.All(p => p.ExecutedFirstPlace) &&
-                    !wabeList.Any(w => w.Owner != null && w.Owner != player) || Players.Count(p => !p.Out) == 1)
+                if (Players.All(p => p.ExecutedFirstPlace) && Players.Count(p => !p.Out) == 1 && !player.Out)
                 {
                     var reason = $"{player.Name} is last man standing!";
                     GameOver = true;
@@ -156,7 +151,7 @@ namespace ChainReact.Core.Game
                     winner.Wins++;
                     return true;
                 }
-                if (wabeList.Count(w => w.Owner != null && w.Owner == CurrentPlayer) >= 25)
+                if (wabeList.Count(w => w.Owner != null && w.Owner == player) >= 25)
                 {
                     var reason = $"{player.Name} has captured 25 wabes.";
                     GameOver = true;

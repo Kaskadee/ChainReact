@@ -39,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -114,14 +115,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\Base\ButtonControl.cs" />
-    <Compile Include="Controls\Base\CheckboxControl.cs" />
-    <Compile Include="Controls\Base\Control.cs" />
-    <Compile Include="Controls\Base\Interfaces\ICheckableControl.cs" />
-    <Compile Include="Controls\Base\Interfaces\IClickableControl.cs" />
-    <Compile Include="Controls\ContinueButton.cs" />
-    <Compile Include="Controls\SettingsButton.cs" />
-    <Compile Include="Controls\TestCheckbox.cs" />
+    <Compile Include="GameSettings.cs" />
     <Compile Include="Input\Devices\KeyboardDevice.cs" />
     <Compile Include="Input\Devices\MouseDevice.cs" />
     <Compile Include="Input\IInputController.cs" />
@@ -129,7 +123,7 @@
     <Compile Include="MainGame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scenes\BlackField.cs" />
+    <Compile Include="Scenes\Coverage.cs" />
     <Compile Include="Scenes\MainMenuScene.cs" />
     <Compile Include="Scenes\SettingsScene.cs" />
     <Compile Include="Utilities\ColorTextureConverter.cs" />
@@ -161,6 +155,10 @@
     <ProjectReference Include="..\ChainReact.Core\ChainReact.Core.csproj">
       <Project>{e80f967d-affc-4598-a526-bb001b90e47a}</Project>
       <Name>ChainReact.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ChainReact.UI\ChainReact.UI.csproj">
+      <Project>{68ca5c96-ce8d-44de-ad06-1d523c602e27}</Project>
+      <Name>ChainReact.UI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

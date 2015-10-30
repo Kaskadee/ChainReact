@@ -4,15 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E80F967D-AFFC-4598-A526-BB001B90E47A}</ProjectGuid>
+    <ProjectGuid>{68CA5C96-CE8D-44DE-AD06-1D523C602E27}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ChainReact.Core</RootNamespace>
-    <AssemblyName>ChainReact.Core</AssemblyName>
+    <RootNamespace>ChainReact.UI</RootNamespace>
+    <AssemblyName>ChainReact.UI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,38 +30,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Sharpex2D, Version=2.1.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Sharpex2D">
       <HintPath>..\ChainReact\Libs\Sharpex2D.dll</HintPath>
-    </Reference>
-    <Reference Include="Sharpex2D.Audio.CSCore">
-      <HintPath>..\ChainReact\Libs\Sharpex2D.Audio.CSCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Sharpex2D.Framework.Rendering.DirectX">
-      <HintPath>..\ChainReact\Libs\Sharpex2D.Framework.Rendering.DirectX.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,21 +43,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Game\Animations\MultiAnimation.cs" />
-    <Compile Include="Game\ChainReactGame.cs" />
-    <Compile Include="Game\DrawRequestedEventArgs.cs" />
-    <Compile Include="Game\GameQueue.cs" />
-    <Compile Include="Game\Layout\WabeLayout.cs" />
-    <Compile Include="Game\Objects\Player.cs" />
-    <Compile Include="Game\Field\Wabe.cs" />
-    <Compile Include="Game\Field\WabeField.cs" />
+    <Compile Include="Base\Control.cs" />
+    <Compile Include="Button.cs" />
+    <Compile Include="Checkbox.cs" />
+    <Compile Include="Extensions\Texture2DExtension.cs" />
+    <Compile Include="Label.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceManager.cs" />
-    <Compile Include="Utilities\ColorTextureConverter.cs" />
-    <Compile Include="Utilities\EnumerableExt.cs" />
+    <Compile Include="Types\ICheckableControl.cs" />
+    <Compile Include="Types\IClickableControl.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\ChainReact.Core\ChainReact.Core.csproj">
+      <Project>{e80f967d-affc-4598-a526-bb001b90e47a}</Project>
+      <Name>ChainReact.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

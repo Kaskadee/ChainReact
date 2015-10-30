@@ -35,7 +35,7 @@ namespace ChainReact.Core.Game.Field
             get { return _poweredSpheres; }
             set
             {
-                if(SphereCount < value)
+                if (SphereCount < value)
                     throw new IndexOutOfRangeException($"Unable to power {value} spheres. There're only {SphereCount} spheres in this wabe.");
                 if (SphereCount == value)
                 {
@@ -44,7 +44,7 @@ namespace ChainReact.Core.Game.Field
                 else
                 {
                     _poweredSpheres = value;
-                }            
+                }
             }
         }
 
@@ -67,7 +67,7 @@ namespace ChainReact.Core.Game.Field
             var animations = animation.Animations.Select(templateAni => templateAni.CopyFromAnimation()).ToList();
             var ani = new MultiAnimation(game.Game, animations, animation.Loops, animation.Sound);
             Animation = ani;
-            Layout = new WabeLayout(this, new Vector2(0, 5));           
+            Layout = new WabeLayout(this, new Vector2(0, 5));
             switch (Type)
             {
                 case WabeType.FourWabe:
@@ -94,6 +94,7 @@ namespace ChainReact.Core.Game.Field
             }
             _size = size;
             Animation.AbsolutePosition = GetPositionOfWabeCenter();
+            CorrectMultianimation(Animation);
         }
 
         private void Explode(GameTime time)
@@ -178,7 +179,7 @@ namespace ChainReact.Core.Game.Field
         {
             var field = Fields.First(i => i.Type == WabeFieldType.Unpowered);
             if (field != null) field.Type = WabeFieldType.Powered;
-            if(Owner != owner) Owner = owner;
+            if (Owner != owner) Owner = owner;
             Player winner;
             if (_game.CheckWin(out winner))
             {
@@ -205,29 +206,50 @@ namespace ChainReact.Core.Game.Field
             PoweredSpheres++;
         }
 
+        public void CorrectMultianimation(MultiAnimation multi)
+        {
+            var powerableWabeFields = Fields.Where(f => f.Type == WabeFieldType.Powered || f.Type == WabeFieldType.Unpowered).ToList();
+            for (var i = powerableWabeFields.Count - 1; i >= 0; i--)
+            {
+                var ani = multi.Animations[i];
+                var wabeField = powerableWabeFields[i];
+                var dict = new Dictionary<int, Vector2>
+                {
+                    {1, new Vector2(0, -32) },
+                    {3, new Vector2(-32, 0) },
+                    {5, new Vector2(32, 0) },
+                    {7, new Vector2(0, 32) }
+                };
+                var vect = Vector2.Zero;
+                var success = dict.TryGetValue(wabeField.Id, out vect);
+                if (!success) throw new InvalidOperationException("Can't get position of animation from wabefield");
+                ani.Position = new Rectangle(vect.X, vect.Y, 32, 32);
+            }
+        }
+
         public Vector2 GetPositionOfWabeCenter()
         {
             var wabesize = _size.X;
             var scalingfactor = _size.Y;
-            var fullsize = wabesize*scalingfactor;
-            var thirdsize = fullsize/3;
+            var fullsize = wabesize * scalingfactor;
+            var thirdsize = fullsize / 3;
             var x = X;
             var y = Y;
-            var absoluteX = (x*fullsize) + fullsize;
-            var absoluteY = (y*fullsize) + fullsize;
+            var absoluteX = (x * fullsize) + fullsize;
+            var absoluteY = (y * fullsize) + fullsize;
             return new Vector2(absoluteX + thirdsize, absoluteY + thirdsize);
         }
 
         public WabeField ConvertAbsolutePositionToWabeField(Vector2 position, float wabesize)
         {
-            if (Math.Abs(position.X) < 1 || Math.Abs(position.Y) < 1) return null;    
+            if (Math.Abs(position.X) < 1 || Math.Abs(position.Y) < 1) return null;
             var x = (position.X / wabesize) - 1;
             var y = (position.Y / wabesize) - 1;
             if (x < 0 || y < 0) return null;
             var subtractX = Math.Floor(x);
             var subtractY = Math.Floor(y);
             var relativeX = x - subtractX;
-            var relativeY = y - subtractY;         
+            var relativeY = y - subtractY;
             var indexX = (relativeX < 0.4F) ? 0 : (relativeX < 0.7F) ? 1 : 2;
             var indexY = (relativeY < 0.4F) ? 0 : (relativeY < 0.7F) ? 1 : 2;
             var vector = new Vector2(indexX, indexY);
@@ -258,7 +280,7 @@ namespace ChainReact.Core.Game.Field
 
         public WabeField ConvertVector2ToWabeField(Vector2 position)
         {
-            var x = (int) position.X;
+            var x = (int)position.X;
             var y = (int)position.Y;
             if (x < 0 || x > 2)
                 throw new IndexOutOfRangeException(nameof(x));
@@ -266,7 +288,7 @@ namespace ChainReact.Core.Game.Field
                 throw new IndexOutOfRangeException(nameof(y));
             switch (y)
             {
-                case 0:               
+                case 0:
                     return Fields[x];
                 case 1:
                     return Fields[x + 3];

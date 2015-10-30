@@ -1,18 +1,26 @@
-﻿using Sharpex2D.Framework.Rendering;
+﻿using System;
+using System.IO;
+using System.Xml.Serialization;
+using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Objects
 {
+    [Serializable]
     public sealed class Player
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public Color Color { get; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Color Color { get; set; }
 
         public int Score { get; set; }
         public int Wins { get; set; }
 
+        [XmlIgnore]
         public bool ExecutedFirstPlace { get; set; }
+        [XmlIgnore]
         public bool Out { get; set; }
+
+        private Player() { }
 
         public Player(int id, string name, Color color)
         {
@@ -49,6 +57,27 @@ namespace ChainReact.Core.Game.Objects
                 return "Orange";
             }
             return "Unknown";
+        }
+
+        public string Save(FileInfo path)
+        {
+            if (!Directory.Exists(path.DirectoryName)) Directory.CreateDirectory(path.DirectoryName);
+            if(!path.Exists) path.Create().Close();
+            var serializer = new XmlSerializer(typeof(Player));
+            using (var fs = new StringWriter())
+            {
+                serializer.Serialize(fs, this);
+                return fs.ToString();
+            }
+        }
+
+        public void Load(Player p)
+        {
+                Id = p.Id;
+                Name = p.Name;
+                Color = p.Color;
+                Score = p.Score;
+                Wins = p.Wins;
         }
     }
 }

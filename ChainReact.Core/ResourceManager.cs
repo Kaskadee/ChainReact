@@ -42,7 +42,7 @@ namespace ChainReact.Core
             {
                 return (T) resource;
             }
-            return default(T);
+            throw new ContentLoadException("Asset couldn't be found! Maybe it isn't loaded?");
         }
 
         public void RemoveResource(string name)

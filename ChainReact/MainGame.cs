@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using ChainReact.Controls.Base;
+using System.Windows.Forms;
 using ChainReact.Core;
 using ChainReact.Core.Game;
 using ChainReact.Core.Game.Animations;
@@ -8,11 +10,13 @@ using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
 using ChainReact.Input;
 using ChainReact.Scenes;
+using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.Rendering.OpenGL;
+using Button = ChainReact.UI.Button;
 
 namespace ChainReact
 {
@@ -32,7 +36,9 @@ namespace ChainReact
 
         #region Textures
         private Texture2D _gameBorder;
+        private Texture2D _fieldBorder;
         private Texture2D _wabeBorder;
+        private Texture2D _gameField;
         #endregion
 
         #region Animations
@@ -44,6 +50,8 @@ namespace ChainReact
         #endregion
 
         private string _lastMessage;
+
+        public ChainReactGame ChainReact => _game;
 
         public override void Setup(LaunchParameters launchParameters)
         {
@@ -58,13 +66,32 @@ namespace ChainReact
             SoundManager = new WaveOutSoundManager();
         }
 
+        public override void Initialize()
+        {
+            var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
+            GameSettings.Instance.Load(gameInfo);
+            base.Initialize();
+        }
+
+        public override void Unload()
+        {
+            Save();
+            base.Unload();
+        }
+
+        public void Save()
+        {
+            var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
+            GameSettings.Instance.Save(gameInfo);
+        }
+
         public override void LoadContent()
         {
+            _gameField = ColorTextureConverter.CreateTextureFromColor(64, 64, Color.Gray);
             var sound = Content.Load<Sound>("Sounds/ExplosionSound");
             var soundEffect = new SoundEffect(sound);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
-            ResourceManager.Instance.LoadResource<Texture2D>(this, "Unused", "Textures/Unused");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Powered", "Textures/Powered");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unowned", "Textures/Default");
@@ -78,8 +105,16 @@ namespace ChainReact
             ResourceManager.Instance.ImportResource("ExplosionSound", soundEffect);
             ResourceManager.Instance.ImportResource("Explosion", explosion);
             // TODO Add player configuration
-           
-            _players = new List<Player> { new Player(1, "Player1", Color.Green), new Player(2, "Player2", Color.Red) };
+
+            if (GameSettings.Instance.Players == null || GameSettings.Instance.Players.Count <= 0)
+            {
+                _players = new List<Player> {new Player(1, "Player1", Color.Green), new Player(2, "Player2", Color.Red)};
+                GameSettings.Instance.Players = _players;
+            }
+            else
+            {
+                _players = GameSettings.Instance.Players;
+            }
             var twoExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {
@@ -108,6 +143,8 @@ namespace ChainReact
             var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
             _wabeBorder = CreateBorderFromColor(64, 64, 1, Color.Olive);
             _gameBorder = CreateBorderFromColor((int)fullWabeSizeX, (int)fullWabeSizeY, 3, Color.White);
+            var fieldSize = (int)((WabeSize*ScalingFactor)/3);
+            _fieldBorder = CreateBorderFromColor(fieldSize, fieldSize, 1, Color.Black);
 
             _input = new InputManager(this);
 
@@ -129,7 +166,7 @@ namespace ChainReact
             }
             _input.Update(time);
             var menu = _input.Menu.Value;
-            if (menu && SceneManager.ActiveScene != _mainMenuScene && !_mainMenuScene.ElementManager.Any(t => t.GetType() == typeof(ButtonControl) && ((ButtonControl)t).Clicked))
+            if (menu && SceneManager.ActiveScene != _mainMenuScene && !_mainMenuScene.ElementManager.Any(t => t.GetType() == typeof(Button) && ((Button)t).IsClicked))
             {
                 SceneManager.ActiveScene = _mainMenuScene;
                 return;
@@ -175,6 +212,17 @@ namespace ChainReact
                     batch.DrawTexture(background, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
                 }
             }
+
+            for (var x = 1; x < 7; x++)
+            {
+                for (var y = 1; y < 7; y++)
+                {
+                    var tileX = x * WabeSize * ScalingFactor;
+                    var tileY = y * WabeSize * ScalingFactor;
+                    batch.DrawTexture(_gameField, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                }
+            }
+
             const float cut = ((float)WabeSize / 3) * ScalingFactor;
             var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
             var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
@@ -198,18 +246,27 @@ namespace ChainReact
                             batch.DrawTexture(texture,
                                      new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color, opacity);
                         }
+                        else if(field.Type == WabeFieldType.Unused)
+                        {
+                            var opacity = 0.5F;
+                            var color = wabe.Owner?.Color ?? Color.LightGray;
+                            batch.DrawTexture(texture, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color, opacity);
+                        }
                         else
                         {
                             batch.DrawTexture(texture,
                                 new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut));
                         }
+                        var posX = mutltiplicatorX + wabeX;
+                        var posY = mutltiplicatorY + wabeY;
+                        if(GameSettings.Instance.FieldLines) batch.DrawTexture(_fieldBorder, new Rectangle(posX, posY, cut, cut));
                     }
                 }
 
 
-                batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                if(GameSettings.Instance.WabeLines) batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
             }
-            batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
+            if(GameSettings.Instance.BorderLines) batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
             if (!string.IsNullOrEmpty(_lastMessage))
             {
                 batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, font,
@@ -251,12 +308,11 @@ namespace ChainReact
         {
             switch (field.Type)
             {
-                case WabeFieldType.Unused:
-                    return ResourceManager.Instance.GetResource<Texture2D>("Unused");
                 case WabeFieldType.Unpowered:
                     return ResourceManager.Instance.GetResource<Texture2D>("Unpowered");
                 case WabeFieldType.Powered:
                     return ResourceManager.Instance.GetResource<Texture2D>("Powered");
+                case WabeFieldType.Unused:
                 case WabeFieldType.Center:
                     return ResourceManager.Instance.GetResource<Texture2D>("Unowned");
                 default:

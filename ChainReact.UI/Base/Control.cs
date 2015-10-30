@@ -3,7 +3,7 @@ using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.UI;
 
-namespace ChainReact.Controls.Base
+namespace ChainReact.UI.Base
 {
     public abstract class Control : Element
     {
@@ -12,16 +12,18 @@ namespace ChainReact.Controls.Base
 
         public Game Game { get; protected set; }
 
+        public string Tag { get; set; }
         public string Text { get; set; }
         public SpriteFont Font { get; set; }
         public Color Color { get; set; }
         public Vector2 Position { get; set; }
         public Rectangle Size { get; set; }
-        public bool IsHovered { get; private set; }
+        public bool IsHovered { get; set; }
 
         protected Control(Game game, ElementManager elementManager)
         {
             Game = game;
+            elementManager.AddRootElement(this);
         }
 
         public override void Update(GameTime gameTime)
