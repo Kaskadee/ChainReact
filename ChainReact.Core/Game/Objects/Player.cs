@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using Sharpex2D.Framework.Rendering;
 
@@ -15,6 +17,8 @@ namespace ChainReact.Core.Game.Objects
         public int Score { get; set; }
         public int Wins { get; set; }
 
+        public bool Enabled { get; set; }
+
         [XmlIgnore]
         public bool ExecutedFirstPlace { get; set; }
         [XmlIgnore]
@@ -27,6 +31,9 @@ namespace ChainReact.Core.Game.Objects
             Id = id;
             Name = name;
             Color = color;
+            var fi = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
+            var infos = Player.Load(fi);
+            if(infos == null) Save();
         }
 
         public Player(int id, string name, Color color, int score, int wins)
@@ -36,6 +43,8 @@ namespace ChainReact.Core.Game.Objects
             Score = score;
             Wins = wins;
             Color = color;
+            var fi = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
+            Save();
         }
 
         public string GetColorString()
@@ -59,25 +68,28 @@ namespace ChainReact.Core.Game.Objects
             return "Unknown";
         }
 
-        public string Save(FileInfo path)
+        public void Save()
         {
+            var path = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
             if (!Directory.Exists(path.DirectoryName)) Directory.CreateDirectory(path.DirectoryName);
             if(!path.Exists) path.Create().Close();
             var serializer = new XmlSerializer(typeof(Player));
-            using (var fs = new StringWriter())
+            using (var fs = path.OpenWrite())
             {
+                fs.SetLength(0);
                 serializer.Serialize(fs, this);
-                return fs.ToString();
             }
         }
 
-        public void Load(Player p)
+        public static Player Load(FileInfo path)
         {
-                Id = p.Id;
-                Name = p.Name;
-                Color = p.Color;
-                Score = p.Score;
-                Wins = p.Wins;
+            if (!Directory.Exists(path.DirectoryName) || !path.Exists) return null;
+            var serializer = new XmlSerializer(typeof(Player));
+            using (var fs = path.OpenRead())
+            {
+                var p = (Player)serializer.Deserialize(fs);
+                return p;
+            }
         }
     }
 }

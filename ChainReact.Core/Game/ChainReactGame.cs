@@ -56,7 +56,7 @@ namespace ChainReact.Core.Game
                     Wabes[x, y] = new Wabe(this, type, x, y, animation, size);
                 }
             }
-            CurrentPlayer = Players.First();
+            CurrentPlayer = Players.First(t => !t.Out);
         }
 
         public bool Set(string player, int x, int y, out string error)
@@ -88,12 +88,7 @@ namespace ChainReact.Core.Game
             if (!CurrentPlayer.ExecutedFirstPlace) CurrentPlayer.ExecutedFirstPlace = true;
             wabe.Set(CurrentPlayer);
             error = null;
-            var id = CurrentPlayer.Id + 1;
-            if (id > Players.Count)
-            {
-                id = 1;
-            }
-            CurrentPlayer = Players.Find(p => p.Id == id);
+            CurrentPlayer = Players.NextOfPlayer(CurrentPlayer);
             return true;
         }
 
@@ -116,7 +111,7 @@ namespace ChainReact.Core.Game
             if (!CurrentPlayer.ExecutedFirstPlace) CurrentPlayer.ExecutedFirstPlace = true;
             wabe.Set(CurrentPlayer, field);
             error = null;
-            CurrentPlayer = Players.NextOf(CurrentPlayer);
+            CurrentPlayer = Players.NextOfPlayer(CurrentPlayer);
             return true;
         }
 
@@ -134,7 +129,7 @@ namespace ChainReact.Core.Game
                     Message = reason;
                     if (CurrentPlayer.Id == player.Id)
                     {
-                        CurrentPlayer = Players.NextOf(CurrentPlayer);
+                        CurrentPlayer = Players.NextOfPlayer(CurrentPlayer);
                     }
                     player.Out = true;
                 }

@@ -25,14 +25,14 @@ namespace ChainReact
             var ex = e.ExceptionObject as Exception;
             if (ex == null) return;
             MessageBox.Show(@"An unhandled UI exception has been occured: " + Environment.NewLine +
-                             ex.ToString(), @"Unhandled UI Expception");
+                             ex.Message, @"Unhandled UI Expception");
             Console.WriteLine(ex.ToString());
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             MessageBox.Show(@"An unhandled thread exception has been occured: " + Environment.NewLine +
-                            e.Exception.ToString(), @"Unhandled Thread Exception");
+                            e.Exception, @"Unhandled Thread Exception");
             Console.WriteLine(e.Exception.ToString());
         }
     }

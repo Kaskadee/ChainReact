@@ -69,7 +69,9 @@ namespace ChainReact
         public override void Initialize()
         {
             var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
-            GameSettings.Instance.Load(gameInfo);
+            var players = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "players");
+            if(!players.Exists) players.Create();
+            GameSettings.Instance.Load(gameInfo, players);
             base.Initialize();
         }
 
@@ -101,15 +103,22 @@ namespace ChainReact
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonSettingsHovered", "Textures/ButtonMenuHovered");
             ResourceManager.Instance.LoadResource<SpriteFont>(this, "ButtonFont", "Fonts/ButtonFont");
             ResourceManager.Instance.LoadResource<SpriteFont>(this, "DefaultFont", "Fonts/Default");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExit", "Textures/ButtonExit");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExitHovered", "Textures/ButtonExitHovered");
 
             ResourceManager.Instance.ImportResource("ExplosionSound", soundEffect);
             ResourceManager.Instance.ImportResource("Explosion", explosion);
-            // TODO Add player configuration
 
             if (GameSettings.Instance.Players == null || GameSettings.Instance.Players.Count <= 0)
             {
-                _players = new List<Player> {new Player(1, "Player1", Color.Green), new Player(2, "Player2", Color.Red)};
-                GameSettings.Instance.Players = _players;
+                var players = new List<Player>();
+                var pOne = GameSettings.Instance.AvailablePlayers.FirstOrDefault(t => t.Name == "Player1");
+                var pTwo = GameSettings.Instance.AvailablePlayers.FirstOrDefault(t => t.Name == "Player2");
+                pOne.Enabled = true;
+                pTwo.Enabled = true;
+                players.Add(pOne);
+                players.Add(pTwo);
+                _players = players;
             }
             else
             {
@@ -300,6 +309,14 @@ namespace ChainReact
             {
                 player.ExecutedFirstPlace = false;
                 player.Out = false;
+                player.Save();
+            }
+            _players = GameSettings.Instance.Players;
+            foreach (var player in _players)
+            {
+                player.ExecutedFirstPlace = false;
+                player.Out = false;
+                player.Save();
             }
             _game = new ChainReactGame(this, _animations, _players, new Vector2(WabeSize, ScalingFactor));
         }

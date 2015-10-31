@@ -17,6 +17,7 @@ namespace ChainReact.Scenes
 
         private Button _continuebutton;
         private Button _settingsButton;
+        private Button _exitButton;
 
         private Coverage _blackCoverage = new Coverage(Color.Black);
 
@@ -54,6 +55,7 @@ namespace ChainReact.Scenes
             _blackCoverage.DrawField(_game, spriteBatch, 0.5f);
             _continuebutton.Draw(spriteBatch, gameTime);
             _settingsButton.Draw(spriteBatch, gameTime);
+            _exitButton.Draw(spriteBatch, gameTime);
         }
 
         public void LoadContent()
@@ -72,6 +74,12 @@ namespace ChainReact.Scenes
                 Text = "Settings"
             };
             _settingsButton.OnClick += SettingsClick;
+            _exitButton = new Button(_game, ElementManager, "ButtonExit", "ButtonExitHovered", "ButtonFont")
+            {
+                Bounds = new Rectangle(250, 350, 250, 50),
+                Text = "Exit"
+            };
+            _exitButton.OnClick += (sender, args) => _game.Exit();
             //ElementManager.AddRootElement(_continuebutton);
             //ElementManager.AddRootElement(_settingsButton);
         }

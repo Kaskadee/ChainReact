@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using ChainReact.Core;
+using ChainReact.Core.Game.Objects;
 using ChainReact.Input;
 using ChainReact.UI;
 using ChainReact.UI.Base;
@@ -81,7 +83,6 @@ namespace ChainReact.Scenes
             {
                 Bounds = new Rectangle(25, 60, 32, 32),
                 Color = Color.White,
-                Enabled = false,
                 Tag = "Player1",
                 IsChecked = true
             };
@@ -89,7 +90,6 @@ namespace ChainReact.Scenes
             {
                 Bounds = new Rectangle(25, 110, 32, 32),
                 Color = Color.White,
-                Enabled = false,
                 Tag = "Player2",
                 IsChecked = true
             };
@@ -160,12 +160,42 @@ namespace ChainReact.Scenes
             _fieldLines.IsChecked = GameSettings.Instance.FieldLines;
             _wabeLines.IsChecked = GameSettings.Instance.WabeLines;
 
-            //ElementManager.AddRootElement(_testCheckbox);
+            _playerOne.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerOne.Tag).Enabled;
+            _playerTwo.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerTwo.Tag).Enabled;
+            _playerThree.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerThree.Tag).Enabled;
+            _playerFour.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerFour.Tag).Enabled;
+
+            DisableEnabledCheckboxes();
+
+        }
+
+        private void DisableEnabledCheckboxes()
+        {
+            var checkboxList = new List<Checkbox> { _playerOne, _playerTwo, _playerThree, _playerFour };
+            checkboxList.RemoveAll(c => !c.IsChecked);
+            if (checkboxList.Count <= 2)
+            {
+                foreach (var c in checkboxList)
+                {
+                    c.Enabled = false;
+                }
+            }
+            else
+            {
+                foreach (var c in checkboxList)
+                {
+                    c.Enabled = true;
+                }
+            }
         }
 
         private void PlayersChanged(object sender, System.EventArgs e)
         {
             var checkboxList = new List<Checkbox> { _playerOne, _playerTwo, _playerThree, _playerFour };
+            foreach (var player in GameSettings.Instance.AvailablePlayers)
+            {
+                player.Enabled = false;
+            }
             checkboxList.RemoveAll(c => !c.IsChecked);
             var playerList = checkboxList.Select(c => c.Tag).ToList();
             if (playerList.Count <= 2)
@@ -182,6 +212,12 @@ namespace ChainReact.Scenes
                     c.Enabled = true;
                 }
             }
+            var tmp = GameSettings.Instance.AvailablePlayers;
+            foreach (var p in playerList.Select(name => tmp.FirstOrDefault(t => t.Name == name)))
+            {
+                p.Enabled = true;
+            }
+            GameSettings.Instance.AvailablePlayers = tmp;
         }
     }
 }
