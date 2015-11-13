@@ -109,21 +109,8 @@ namespace ChainReact
             ResourceManager.Instance.ImportResource("ExplosionSound", soundEffect);
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
-            if (GameSettings.Instance.Players == null || GameSettings.Instance.Players.Count <= 0)
-            {
-                var players = new List<Player>();
-                var pOne = GameSettings.Instance.AvailablePlayers.FirstOrDefault(t => t.Name == "Player1");
-                var pTwo = GameSettings.Instance.AvailablePlayers.FirstOrDefault(t => t.Name == "Player2");
-                pOne.Enabled = true;
-                pTwo.Enabled = true;
-                players.Add(pOne);
-                players.Add(pTwo);
-                _players = players;
-            }
-            else
-            {
-                _players = GameSettings.Instance.Players;
-            }
+            _players = GameSettings.Instance.Players;
+
             var twoExplosion = new MultiAnimation(this,
                 new List<Animation>
                 {

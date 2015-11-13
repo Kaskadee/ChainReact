@@ -164,10 +164,7 @@ namespace ChainReact.Core.Game.Field
                     _id = _game.Queue.Add(actionList);
                     Animation.Sound.Play();
                 }
-
-
             }
-
         }
 
         public void Set()

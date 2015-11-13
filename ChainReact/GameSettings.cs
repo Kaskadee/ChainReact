@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using ChainReact.Core.Game.Objects;
+using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact
 {
@@ -12,15 +13,23 @@ namespace ChainReact
     {
         [XmlIgnore]
         private static GameSettings _settings;
-
         [XmlIgnore]
         public static GameSettings Instance => _settings ?? (_settings = new GameSettings());
-
         [XmlIgnore]
         public List<Player> AvailablePlayers { get; set; } = new List<Player>();
-
         [XmlIgnore]
         public List<Player> Players => AvailablePlayers.Where(p => p.Enabled).ToList();
+
+        [XmlIgnore]
+        public List<Player> DefaultPlayers
+            =>
+                new List<Player>
+                {
+                    new Player(1, "Player1", (() => Color.Green)) {Enabled = true},
+                    new Player(2, "Player2", (() => Color.Red)) {Enabled = true},
+                    new Player(3, "Player3", (() => Color.Blue)),
+                    new Player(4, "Player4", (() => Color.Orange))
+                };
 
         public bool FieldLines { get; set; }
         public bool WabeLines { get; set; }
@@ -29,9 +38,9 @@ namespace ChainReact
         public void Save(FileInfo info)
         {
             if (!Directory.Exists(info.DirectoryName)) Directory.CreateDirectory(info.DirectoryName);
-            if(!File.Exists(info.FullName)) info.Create().Close();
-            
-            var serializer = new XmlSerializer(typeof(GameSettings));
+            if (!File.Exists(info.FullName)) info.Create().Close();
+
+            var serializer = new XmlSerializer(typeof (GameSettings));
             using (var fs = info.OpenWrite())
             {
                 fs.SetLength(0);
@@ -45,7 +54,18 @@ namespace ChainReact
 
         public void Load(FileInfo info, DirectoryInfo players)
         {
-            if (!Directory.Exists(info.DirectoryName) || !File.Exists(info.FullName)) return;
+            if (!Directory.Exists(info.DirectoryName) || !File.Exists(info.FullName))
+            {
+                Directory.CreateDirectory(info.DirectoryName);
+                if(!File.Exists(info.FullName)) info.Create().Close();
+                // Load default settings
+                FieldLines = true;
+                BorderLines = true;
+                WabeLines = true;
+                FillDefaultPlayers();
+                Save(info);
+                return;
+            }
             var serializer = new XmlSerializer(typeof(GameSettings));
             using (var fs = info.OpenRead())
             {
@@ -61,6 +81,16 @@ namespace ChainReact
                 {
                     Players.Add(player);
                 }
+            }
+            FillDefaultPlayers();
+        }
+
+        private void FillDefaultPlayers()
+        {
+            if (AvailablePlayers.Count <= 0)
+            {
+                AvailablePlayers.Clear();
+                AvailablePlayers.AddRange(DefaultPlayers);
             }
         }
     }

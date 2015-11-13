@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Xml.Serialization;
+using ChainReact.Core.Utilities;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Objects
@@ -10,9 +12,13 @@ namespace ChainReact.Core.Game.Objects
     [Serializable]
     public sealed class Player
     {
+        private Expression<Func<Color>> _colorExpression;
+        private readonly FileInfo _saveFileInfo;
+
         public int Id { get; set; }
         public string Name { get; set; }
         public Color Color { get; set; }
+        public string ColorName { get; set; }
 
         public int Score { get; set; }
         public int Wins { get; set; }
@@ -24,57 +30,44 @@ namespace ChainReact.Core.Game.Objects
         [XmlIgnore]
         public bool Out { get; set; }
 
-        private Player() { }
-
-        public Player(int id, string name, Color color)
+        private Player()
         {
-            Id = id;
-            Name = name;
-            Color = color;
-            var fi = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
-            var infos = Player.Load(fi);
-            if(infos == null) Save();
+            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
 
-        public Player(int id, string name, Color color, int score, int wins)
+        public Player(int id, string name, Expression<Func<Color>> colorExpression)
         {
+            var colorFunc = colorExpression.Compile();
+            ColorName = ((MemberExpression) colorExpression.Body).Member.Name;
+            Color = colorFunc.Invoke();
+            Id = id;
+            Name = name;
+            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
+        }
+
+        public Player(int id, string name, Expression<Func<Color>> colorExpression, int score, int wins)
+        {
+            var colorFunc = colorExpression.Compile();
+            ColorName = ((MemberExpression)colorExpression.Body).Member.Name;
+            Color = colorFunc.Invoke();
             Id = id;
             Name = name;
             Score = score;
             Wins = wins;
-            Color = color;
-            var fi = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
-            Save();
+            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
 
         public string GetColorString()
         {
-            if (Color.Equals(Color.Red))
-            {
-                return "Red";
-            }
-            if (Color.Equals(Color.Green))
-            {
-                return "Green";
-            }
-            if (Color.Equals(Color.Blue))
-            {
-                return "Blue";
-            }
-            if (Color.Equals(Color.Orange))
-            {
-                return "Orange";
-            }
-            return "Unknown";
+            return !string.IsNullOrEmpty(ColorName) ? ColorName : "Unknown";
         }
 
         public void Save()
         {
-            var path = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/" + Name + ".sav");
-            if (!Directory.Exists(path.DirectoryName)) Directory.CreateDirectory(path.DirectoryName);
-            if(!path.Exists) path.Create().Close();
+            if (!Directory.Exists(_saveFileInfo.DirectoryName)) Directory.CreateDirectory(_saveFileInfo.DirectoryName);
+            if(!_saveFileInfo.Exists) _saveFileInfo.Create().Close();
             var serializer = new XmlSerializer(typeof(Player));
-            using (var fs = path.OpenWrite())
+            using (var fs = _saveFileInfo.OpenWrite())
             {
                 fs.SetLength(0);
                 serializer.Serialize(fs, this);

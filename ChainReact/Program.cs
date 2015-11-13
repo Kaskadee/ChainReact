@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 using ChainReact.Core.Game;
+using ChainReact.Extensions;
 
 namespace ChainReact
 {
@@ -25,14 +26,15 @@ namespace ChainReact
             var ex = e.ExceptionObject as Exception;
             if (ex == null) return;
             MessageBox.Show(@"An unhandled UI exception has been occured: " + Environment.NewLine +
-                             ex.Message, @"Unhandled UI Expception");
+                             ex.Message + Environment.NewLine + ex.ToShortString(), @"Unhandled UI Expception");
             Console.WriteLine(ex.ToString());
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
+            var ex = e.Exception;
             MessageBox.Show(@"An unhandled thread exception has been occured: " + Environment.NewLine +
-                            e.Exception, @"Unhandled Thread Exception");
+                            ex.Message + Environment.NewLine + ex.ToShortString(), @"Unhandled Thread Exception");
             Console.WriteLine(e.Exception.ToString());
         }
     }
