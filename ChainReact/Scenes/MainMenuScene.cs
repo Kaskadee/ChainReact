@@ -52,7 +52,7 @@ namespace ChainReact.Scenes
 
         public override void OnDraw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            _blackCoverage.DrawField(_game, spriteBatch, 0.5f);
+            _blackCoverage.DrawField(_game, spriteBatch, 128);
             _continuebutton.Draw(spriteBatch, gameTime);
             _settingsButton.Draw(spriteBatch, gameTime);
             _exitButton.Draw(spriteBatch, gameTime);

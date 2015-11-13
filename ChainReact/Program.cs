@@ -26,7 +26,7 @@ namespace ChainReact
             var ex = e.ExceptionObject as Exception;
             if (ex == null) return;
             MessageBox.Show(@"An unhandled UI exception has been occured: " + Environment.NewLine +
-                             ex.Message + Environment.NewLine + ex.ToShortString(), @"Unhandled UI Expception");
+                             ex.Message + Environment.NewLine + ex.ToShortString(), @"Unhandled UI Exception");
             Console.WriteLine(ex.ToString());
         }
 

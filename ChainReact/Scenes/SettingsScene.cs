@@ -65,7 +65,7 @@ namespace ChainReact.Scenes
 
         public override void OnDraw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            _orangeCoverage.DrawField(_game, spriteBatch, 1.0f);
+            _orangeCoverage.DrawField(_game, spriteBatch);
             foreach (var control in ElementManager.ToArray())
             {
                 control.Draw(spriteBatch, gameTime);

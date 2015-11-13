@@ -55,7 +55,7 @@ namespace ChainReact
 
         public override void Setup(LaunchParameters launchParameters)
         {
-            GraphicsManager = new OpenGLGraphicsManager
+            GraphicsManager = new GLGraphicsManager
             {
                 PreferredBackBufferHeight = 768,
                 PreferredBackBufferWidth = 768
@@ -237,16 +237,15 @@ namespace ChainReact
                         var mutltiplicatorY = cut * y;
                         if (field.Type == WabeFieldType.Center)
                         {
-                            var opacity = (wabe.Owner != null) ? 0.8F : 1.0F;
                             var color = wabe.Owner?.Color ?? Color.White;
-                            batch.DrawTexture(texture,
-                                     new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color, opacity);
+                            color.A = (wabe.Owner != null) ? (byte)205 : (byte)255;
+                            batch.DrawTexture(texture, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color);
                         }
                         else if(field.Type == WabeFieldType.Unused)
                         {
-                            var opacity = 0.5F;
                             var color = wabe.Owner?.Color ?? Color.LightGray;
-                            batch.DrawTexture(texture, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color, opacity);
+                            color.A = 128;
+                            batch.DrawTexture(texture, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color);
                         }
                         else
                         {

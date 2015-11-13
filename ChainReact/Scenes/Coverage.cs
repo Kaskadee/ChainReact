@@ -14,10 +14,12 @@ namespace ChainReact.Scenes
             _col = col;
         }
 
-        public void DrawField(Game game, SpriteBatch batch, float opacity = 0f)
+        public void DrawField(Game game, SpriteBatch batch, byte opacity = 255)
         {
             if(_coverage == null) LoadTexture(_col);
-            batch.DrawTexture(_coverage, new Rectangle(0, 0, game.Window.ClientSize.X, game.Window.ClientSize.Y), Color.White, opacity);
+            var col = Color.White;
+            col.A = opacity;
+            batch.DrawTexture(_coverage, new Rectangle(0, 0, game.Window.ClientSize.X, game.Window.ClientSize.Y), col);
         }
 
         private void LoadTexture(Color col)
