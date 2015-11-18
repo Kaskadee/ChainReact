@@ -18,4 +18,4 @@ See ToDo.txt ;)
 License
 ----
 
-MIT
+GNU General Public License v3.0
