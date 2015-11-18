@@ -1,4 +1,0 @@
-artifacts:
-  - path: ChainReact\bin\$(configuration)
-    name: Build
-    type: zip
