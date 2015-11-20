@@ -32,7 +32,7 @@ namespace ChainReact
         private ChainReactGame _game;
         private InputManager _input;
 
-        private List<Player> _players; 
+        private List<Player> _players;
         #endregion
 
         #region Textures
@@ -54,6 +54,10 @@ namespace ChainReact
 
         public override void Setup(LaunchParameters launchParameters)
         {
+            if (launchParameters.KeyAvailable("Debugger") && launchParameters["Debugger"] == "Enabled")
+            {
+                Debugger.Launch();
+            }
             GraphicsManager = new GLGraphicsManager
             {
                 PreferredBackBufferHeight = 768,
@@ -69,9 +73,10 @@ namespace ChainReact
         {
             var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
             var players = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "players");
-            if(!players.Exists) players.Create();
+            if (!players.Exists) players.Create();
             GameSettings.Instance.Load(gameInfo, players);
             base.Initialize();
+
         }
 
         public override void Unload()
@@ -89,8 +94,6 @@ namespace ChainReact
         public override void LoadContent()
         {
             _gameField = ColorTextureConverter.CreateTextureFromColor(64, 64, Color.Gray);
-            var sound = Content.Load<Sound>("Sounds/ExplosionSound");
-            _effect = new SoundEffect(sound);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
@@ -105,7 +108,10 @@ namespace ChainReact
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExit", "Textures/ButtonExit");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExitHovered", "Textures/ButtonExitHovered");
 
+            var sound = Content.Load<Sound>("Sounds/ExplosionSound");
+            _effect = new SoundEffect(sound);
             ResourceManager.Instance.ImportResource("ExplosionSound", _effect);
+
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
             _players = GameSettings.Instance.Players;
@@ -116,7 +122,7 @@ namespace ChainReact
             var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
             _wabeBorder = CreateBorderFromColor(64, 64, 1, Color.Olive);
             _gameBorder = CreateBorderFromColor((int)fullWabeSizeX, (int)fullWabeSizeY, 3, Color.White);
-            var fieldSize = (int)((WabeSize*ScalingFactor)/3);
+            var fieldSize = (int)((WabeSize * ScalingFactor) / 3);
             _fieldBorder = CreateBorderFromColor(fieldSize, fieldSize, 1, Color.Black);
 
             _input = new InputManager(this);
@@ -218,7 +224,7 @@ namespace ChainReact
                             color.A = (wabe.Owner != null) ? (byte)205 : (byte)255;
                             batch.DrawTexture(texture, new Rectangle((wabeX) + mutltiplicatorX, (wabeY) + mutltiplicatorY, cut, cut), color);
                         }
-                        else if(field.Type == WabeFieldType.Unused)
+                        else if (field.Type == WabeFieldType.Unused)
                         {
                             var color = wabe.Owner?.Color ?? Color.LightGray;
                             color.A = 128;
@@ -231,14 +237,14 @@ namespace ChainReact
                         }
                         var posX = mutltiplicatorX + wabeX;
                         var posY = mutltiplicatorY + wabeY;
-                        if(GameSettings.Instance.FieldLines) batch.DrawTexture(_fieldBorder, new Rectangle(posX, posY, cut, cut));
+                        if (GameSettings.Instance.FieldLines) batch.DrawTexture(_fieldBorder, new Rectangle(posX, posY, cut, cut));
                     }
                 }
 
 
-                if(GameSettings.Instance.WabeLines) batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                if (GameSettings.Instance.WabeLines) batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
             }
-            if(GameSettings.Instance.BorderLines) batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
+            if (GameSettings.Instance.BorderLines) batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
             if (!string.IsNullOrEmpty(_lastMessage))
             {
                 batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, font,
@@ -306,7 +312,7 @@ namespace ChainReact
             tex.Lock();
             for (var x = 0; x <= width - 1; x++)
             {
-                for(var y = 0; y <= heigth - 1; y++)
+                for (var y = 0; y <= heigth - 1; y++)
                     if ((penLength - x) > 0 || (penLength + x) > width - 1)
                         tex[x, y] = color;
             }

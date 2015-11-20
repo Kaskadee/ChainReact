@@ -75,7 +75,6 @@
     <Compile Include="Game\Animations\Base\IAnimationManager.cs" />
     <Compile Include="Game\Animations\ExplosionManager.cs" />
     <Compile Include="Game\ChainReactGame.cs" />
-    <Compile Include="Game\DrawRequestedEventArgs.cs" />
     <Compile Include="Game\Animations\Explosion.cs" />
     <Compile Include="Game\GameQueue.cs" />
     <Compile Include="Game\Layout\WabeLayout.cs" />

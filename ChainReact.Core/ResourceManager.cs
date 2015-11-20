@@ -8,6 +8,8 @@ namespace ChainReact.Core
 {
     public class ResourceManager
     {
+        public bool SoundAvailable { get; set; }
+
         private static ResourceManager _instance;
         public static ResourceManager Instance => _instance ?? (_instance = new ResourceManager());
 

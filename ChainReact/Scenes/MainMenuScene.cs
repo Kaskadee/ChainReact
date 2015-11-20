@@ -22,7 +22,7 @@ namespace ChainReact.Scenes
 
         //private Textbox _box;
 
-        private Coverage _blackCoverage = new Coverage(Color.Black);
+        private readonly Coverage _blackCoverage = new Coverage(Color.Black);
 
         public MainMenuScene(Game game, InputManager input)
         {
@@ -50,11 +50,7 @@ namespace ChainReact.Scenes
                 {
                     checkable.Checked(gameTime);
                 }
-                foreach (var element in ElementManager.ToArray())
-                {
-                    var ctl = (Control) element;
-                    ctl.SetInputState(_input.Controllers.First(t => t.GetType() == typeof(KeyboardDevice)).State);
-                }
+                ElementManager.SetInputState(_input.Controllers.First(t => t.GetType() == typeof(KeyboardDevice)).State);
             }
         }
 

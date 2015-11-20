@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using ChainReact.Core;
 using ChainReact.Core.Game;
 using ChainReact.Extensions;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact
@@ -16,19 +18,12 @@ namespace ChainReact
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
-        public static void Main(string[] args)
+        public static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            if (args.Length > 0)
-            {
-                if (args.Any(arg => arg == "--debugger" && !Debugger.IsAttached))
-                {
-                    Debugger.Launch();
-                }
-            }
             var game = new MainGame();
             game.Run();
         }
@@ -45,7 +40,7 @@ namespace ChainReact
             else if (ex.Message.Contains("OpenGL 3.3"))
             {
                 MessageBox.Show(@"Failed to create OpenGL 3.3 Context. If you are debugging try restarting the application.", @"Visual Studio - OpenGL 3.3 Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Process.Start(Assembly.GetExecutingAssembly().Location, "--debugger");
+                Process.Start(Assembly.GetExecutingAssembly().Location, "Debugger Enabled");
                 Environment.Exit(-1);
             }
 

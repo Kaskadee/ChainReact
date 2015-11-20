@@ -5,6 +5,7 @@ using System.Text;
 using ChainReact.Core.Game.Animations.Base;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
+using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
@@ -24,8 +25,11 @@ namespace ChainReact.Core.Game.Animations
 
         public ExplosionManager(List<Explosion> animations, int loops, SoundEffect effect)
         {
-            Sound = effect;
-            Sound.Initialize();
+            if (effect != null)
+            {
+                Sound = effect;
+                Sound.Initialize();
+            }
             Animations = animations;
             MaxLoops = loops;
         }

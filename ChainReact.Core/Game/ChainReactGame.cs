@@ -23,8 +23,6 @@ namespace ChainReact.Core.Game
         public bool GameOver { get; private set; }
         public string Message { get; private set; }
 
-        public event EventHandler<DrawRequestedEventArgs> RequestDraw;
-
         public ChainReactGame(Sharpex2D.Framework.Game game, IEnumerable<Player> players, Vector2 size)
         {
             Game = game;
@@ -190,11 +188,6 @@ namespace ChainReact.Core.Game
             var relativeY = (int) Math.Floor(y);
             if (relativeX > (Wabes.GetLength(0) - 1) || relativeY > (Wabes.GetLength(1) - 1)) return null;
             return Wabes[relativeX, relativeY];
-        }
-
-        public void InvokeDrawRequest(object sender, DrawRequestedEventArgs args)
-        {
-            RequestDraw?.Invoke(this, args);
         }
     }
 }
