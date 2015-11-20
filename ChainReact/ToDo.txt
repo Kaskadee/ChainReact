@@ -1,6 +1,6 @@
-﻿1. Game Settings (5% done)
-  - add game settings menu (x)
-   -> player configuration (!)
+﻿1. Game Settings (50% done)
+  - add game settings menu (60% done)
+   -> player configuration (55% done)
    -> texture configuration (?)
 
 2. Custom Maps (?)

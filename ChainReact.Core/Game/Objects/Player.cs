@@ -12,8 +12,7 @@ namespace ChainReact.Core.Game.Objects
     [Serializable]
     public sealed class Player
     {
-        private Expression<Func<Color>> _colorExpression;
-        private readonly FileInfo _saveFileInfo;
+        private FileInfo _saveFileInfo;
 
         public int Id { get; set; }
         public string Name { get; set; }
@@ -32,11 +31,13 @@ namespace ChainReact.Core.Game.Objects
 
         private Player()
         {
-            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
+           
         }
 
         public Player(int id, string name, Expression<Func<Color>> colorExpression)
         {
+            if(Id == 0)
+                throw new IndexOutOfRangeException("Id must be greater than 0");
             var colorFunc = colorExpression.Compile();
             ColorName = ((MemberExpression) colorExpression.Body).Member.Name;
             Color = colorFunc.Invoke();
@@ -47,6 +48,8 @@ namespace ChainReact.Core.Game.Objects
 
         public Player(int id, string name, Expression<Func<Color>> colorExpression, int score, int wins)
         {
+            if (Id == 0)
+                throw new IndexOutOfRangeException("Id must be greater than 0");
             var colorFunc = colorExpression.Compile();
             ColorName = ((MemberExpression)colorExpression.Body).Member.Name;
             Color = colorFunc.Invoke();
@@ -64,6 +67,9 @@ namespace ChainReact.Core.Game.Objects
 
         public void Save()
         {
+            if (Id == 0)
+                throw new IndexOutOfRangeException("Id must be greater than 0");
+
             if (!Directory.Exists(_saveFileInfo.DirectoryName)) Directory.CreateDirectory(_saveFileInfo.DirectoryName);
             if(!_saveFileInfo.Exists) _saveFileInfo.Create().Close();
             var serializer = new XmlSerializer(typeof(Player));
@@ -81,8 +87,14 @@ namespace ChainReact.Core.Game.Objects
             using (var fs = path.OpenRead())
             {
                 var p = (Player)serializer.Deserialize(fs);
+                p.RefreshFileInfo();
                 return p;
             }
+        }
+
+        public void RefreshFileInfo()
+        {
+            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
     }
 }

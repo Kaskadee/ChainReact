@@ -1,4 +1,5 @@
-﻿using Sharpex2D.Framework;
+﻿using System;
+using Sharpex2D.Framework;
 using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.UI;
@@ -7,6 +8,8 @@ namespace ChainReact.UI.Base
 {
     public abstract class Control : Element
     {
+        public event EventHandler<KeyPressEventArgs> OnKeyPress;
+
         private MouseState _currentMouseState;
         private Rectangle _mouseRectangle;
 
@@ -26,6 +29,15 @@ namespace ChainReact.UI.Base
             elementManager.AddRootElement(this);
         }
 
+        public override void InputStateReceived(InputState inputState)
+        {
+            if (inputState.Is<KeyboardState>())
+            {
+                OnKeyPress?.Invoke(this,  new KeyPressEventArgs((KeyboardState)inputState.State));   
+            }
+            base.InputStateReceived(inputState);
+        }
+
         public override void Update(GameTime gameTime)
         {
             Position = new Vector2(Bounds.X, Bounds.Y);
@@ -35,6 +47,16 @@ namespace ChainReact.UI.Base
             _mouseRectangle.Y = _currentMouseState.Position.Y;
             IsHovered = _mouseRectangle.Intersects(Bounds);
             base.Update(gameTime);
+        }
+    }
+
+    public class KeyPressEventArgs : EventArgs
+    {
+        public KeyboardState State { get; set; }
+
+        public KeyPressEventArgs(KeyboardState state)
+        {
+            State = state;
         }
     }
 }
