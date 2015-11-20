@@ -29,20 +29,43 @@ namespace ChainReact.Core
              _importedResources.Add(name, resource);
         }
 
-        public IContent GetResource(string name)
-        {
-            IContent resource;
-            return _importedResources.TryGetValue(name, out resource) ? resource : null;
-        }
 
         public T GetResource<T>(string name) where T : IContent
         {
             IContent resource;
             if (_importedResources.TryGetValue(name, out resource))
             {
-                return (T) resource;
+                return (T)resource;
             }
             throw new ContentLoadException("Asset couldn't be found! Maybe it isn't loaded?");
+        }
+
+        [Obsolete]
+        public IContent GetResource(string name)
+        {
+            IContent resource;
+            if (_importedResources.TryGetValue(name, out resource))
+            {
+                return resource;
+            }
+            throw new ContentLoadException("Asset couldn't be found! Maybe it isn't loaded?");
+        }
+
+        public T TryGetResource<T>(string name) where T : IContent
+        {
+            IContent resource;
+            if (_importedResources.TryGetValue(name, out resource))
+            {
+                return (T) resource;
+            }
+            return default(T);
+        }
+
+        [Obsolete]
+        public IContent TryGetResource(string name)
+        {
+            IContent resource;
+            return _importedResources.TryGetValue(name, out resource) ? resource : null;
         }
 
         public void RemoveResource(string name)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ChainReact.Input;
+using ChainReact.Input.Devices;
 using ChainReact.UI;
 using ChainReact.UI.Base;
 using ChainReact.UI.Types;
@@ -18,6 +19,8 @@ namespace ChainReact.Scenes
         private Button _continuebutton;
         private Button _settingsButton;
         private Button _exitButton;
+
+        //private Textbox _box;
 
         private Coverage _blackCoverage = new Coverage(Color.Black);
 
@@ -47,6 +50,11 @@ namespace ChainReact.Scenes
                 {
                     checkable.Checked(gameTime);
                 }
+                foreach (var element in ElementManager.ToArray())
+                {
+                    var ctl = (Control) element;
+                    ctl.SetInputState(_input.Controllers.First(t => t.GetType() == typeof(KeyboardDevice)).State);
+                }
             }
         }
 
@@ -56,6 +64,7 @@ namespace ChainReact.Scenes
             _continuebutton.Draw(spriteBatch, gameTime);
             _settingsButton.Draw(spriteBatch, gameTime);
             _exitButton.Draw(spriteBatch, gameTime);
+            //_box.Draw(spriteBatch, gameTime);
         }
 
         public void LoadContent()
@@ -79,9 +88,11 @@ namespace ChainReact.Scenes
                 Bounds = new Rectangle(250, 350, 250, 50),
                 Text = "Exit"
             };
+            //_box = new Textbox(_game, ElementManager, "", "ButtonFont", Color.White, new Rectangle(250, 425, 200, 50))
+            //{
+            //    Enabled = true
+            //};
             _exitButton.OnClick += (sender, args) => _game.Exit();
-            //ElementManager.AddRootElement(_continuebutton);
-            //ElementManager.AddRootElement(_settingsButton);
         }
 
         private void SettingsClick(object sender, EventArgs e)

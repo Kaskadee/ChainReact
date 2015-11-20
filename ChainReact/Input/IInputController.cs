@@ -1,5 +1,6 @@
 ﻿using ChainReact.Utilities;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Input
 {
@@ -11,6 +12,8 @@ namespace ChainReact.Input
         Trigger Clicked { get; }
         Trigger Reset { get; }
         Trigger Menu { get; }
+
+        InputState State { get; }
 
         void Update(GameTime time);
     }

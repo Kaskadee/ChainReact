@@ -7,6 +7,7 @@ using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Layout;
 using ChainReact.Core.Game.Objects;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Field
@@ -18,10 +19,11 @@ namespace ChainReact.Core.Game.Field
         private int _poweredSpheres;
         private readonly ChainReactGame _game;
 
+        public ExplosionManager AnimationManager { get; }
+
         public Player Owner { get; set; }
         public WabeLayout Layout { get; }
         public WabeType Type { get; }
-        public MultiAnimation Animation { get; }
 
         public int X { get; }
         public int Y { get; }
@@ -55,18 +57,15 @@ namespace ChainReact.Core.Game.Field
         /// <param name="type">The wabe type.</param>
         /// <param name="x">The x position.</param>
         /// <param name="y">The y position.</param>
-        /// <param name="animation">The explosion animation.</param>
         /// <param name="size">The size of the wabe (Size, ScalingFactor).</param>
-        public Wabe(ChainReactGame game, WabeType type, int x, int y, MultiAnimation animation, Vector2 size)
+        public Wabe(ChainReactGame game, WabeType type, int x, int y, Vector2 size, string resourceName ="")
         {
             _game = game;
             Type = type;
             Fields = new WabeField[9];
             X = x;
             Y = y;
-            var animations = animation.Animations.Select(templateAni => templateAni.CopyFromAnimation()).ToList();
-            var ani = new MultiAnimation(game.Game, animations, animation.Loops, animation.Sound);
-            Animation = ani;
+
             Layout = new WabeLayout(this, new Vector2(0, 5));
             switch (Type)
             {
@@ -93,18 +92,24 @@ namespace ChainReact.Core.Game.Field
                     break;
             }
             _size = size;
-            Animation.AbsolutePosition = GetPositionOfWabeCenter();
-            CorrectMultianimation(Animation);
+            var sound = ResourceManager.Instance.TryGetResource<SoundEffect>(resourceName);
+            AnimationManager = new ExplosionManager(new List<Explosion>(), 3, sound)
+            {
+                AbsolutePosition = GetPositionOfWabeCenter(),
+                IsRelative = true
+            };
+            PopulateExplosionManager();
         }
 
         private void Explode(GameTime time)
         {
-            if (Animation.AllFinished)
+            if (AnimationManager.AllFinished)
             {
                 if (_game.Queue.GetAllActions().ContainsKey(_id))
                 {
                     _game.Queue.Remove(_id);
-                    Animation.Reset();
+                    AnimationManager.Reset();
+                    PopulateExplosionManager();
                 }
                 var nearWabes = _game.FindNearWabes(X, Y).OrderBy(w => w.X + w.Y);
                 var poweredFields = Fields.ToList().Where(w => w.Type == WabeFieldType.Powered).OrderBy(w => w.Id);
@@ -157,12 +162,11 @@ namespace ChainReact.Core.Game.Field
             }
             else
             {
-                if (!Animation.IsRunning)
+                if (!AnimationManager.IsRunning)
                 {
-                    Animation.Start();
-                    var actionList = new List<Action<GameTime>> { Explode, Animation.Update };
+                    AnimationManager.Start();
+                    var actionList = new List<Action<GameTime>> { Explode, AnimationManager.Update };
                     _id = _game.Queue.Add(actionList);
-                    Animation.Sound.Play();
                 }
             }
         }
@@ -203,12 +207,12 @@ namespace ChainReact.Core.Game.Field
             PoweredSpheres++;
         }
 
-        public void CorrectMultianimation(MultiAnimation multi)
+        private void PopulateExplosionManager()
         {
             var powerableWabeFields = Fields.Where(f => f.Type == WabeFieldType.Powered || f.Type == WabeFieldType.Unpowered).ToList();
             for (var i = powerableWabeFields.Count - 1; i >= 0; i--)
             {
-                var ani = multi.Animations[i];
+               
                 var wabeField = powerableWabeFields[i];
                 var dict = new Dictionary<int, Vector2>
                 {
@@ -220,7 +224,7 @@ namespace ChainReact.Core.Game.Field
                 var vect = Vector2.Zero;
                 var success = dict.TryGetValue(wabeField.Id, out vect);
                 if (!success) throw new InvalidOperationException("Can't get position of animation from wabefield");
-                ani.Position = new Rectangle(vect.X, vect.Y, 32, 32);
+                AnimationManager.CreateNew(new Rectangle(vect.X, vect.Y, 32, 32), true);
             }
         }
 

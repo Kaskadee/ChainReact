@@ -3,6 +3,7 @@ using System.Linq;
 using ChainReact.Input.Devices;
 using ChainReact.Utilities;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Input
 {
@@ -18,10 +19,13 @@ namespace ChainReact.Input
         public Trigger Reset { get; }
         public Trigger Menu { get; }
 
+        public InputState State { get; }
+
         public InputManager(Game game)
         {
             Priority = 0;
             _game = game;
+            State = null;
             Controllers = new List<IInputController> { new MouseDevice(1), new KeyboardDevice(2) };
             Clicked = new Trigger(false);
             Reset = new Trigger(false);

@@ -1,6 +1,7 @@
 ﻿using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Input;
+using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Input.Devices
 {
@@ -12,6 +13,8 @@ namespace ChainReact.Input.Devices
         public Trigger Clicked { get; }
         public Trigger Reset { get; }
         public Trigger Menu { get; }
+
+        public InputState State { get; private set; }
 
         public KeyboardDevice(int priority)
         {
@@ -25,7 +28,7 @@ namespace ChainReact.Input.Devices
         {
             var state = Keyboard.GetState();
             Position = Vector2.Zero;
-
+            State = new InputState(state);
             Reset.Value = state.IsPressed(Keys.R);
             Menu.Value = state.IsPressed(Keys.Escape);
         }

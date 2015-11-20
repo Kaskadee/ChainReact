@@ -40,10 +40,8 @@ namespace ChainReact
         private Texture2D _fieldBorder;
         private Texture2D _wabeBorder;
         private Texture2D _gameField;
-        #endregion
 
-        #region Animations
-        private List<MultiAnimation> _animations; 
+        private SoundEffect _effect;
         #endregion
 
         #region Scenes
@@ -92,7 +90,7 @@ namespace ChainReact
         {
             _gameField = ColorTextureConverter.CreateTextureFromColor(64, 64, Color.Gray);
             var sound = Content.Load<Sound>("Sounds/ExplosionSound");
-            var soundEffect = new SoundEffect(sound);
+            _effect = new SoundEffect(sound);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
@@ -107,34 +105,12 @@ namespace ChainReact
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExit", "Textures/ButtonExit");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExitHovered", "Textures/ButtonExitHovered");
 
-            ResourceManager.Instance.ImportResource("ExplosionSound", soundEffect);
+            ResourceManager.Instance.ImportResource("ExplosionSound", _effect);
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
             _players = GameSettings.Instance.Players;
 
-            var twoExplosion = new MultiAnimation(this,
-                new List<Animation>
-                {
-                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(explosion, new Rectangle(0, 32, 32, 32))
-                }, 3, soundEffect);
-            var threeExplosion = new MultiAnimation(this,
-                new List<Animation>
-                {
-                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(explosion, new Rectangle(0, 32, 32, 32)),
-                    new Animation(explosion, new Rectangle(-32, 0, 32, 32))
-                }, 3, soundEffect);
-             var fourExplosion = new MultiAnimation(this,
-               new List<Animation>
-               {
-                    new Animation(explosion, new Rectangle(32, 0, 32, 32)),
-                    new Animation(explosion, new Rectangle(0, 32, 32, 32)),
-                    new Animation(explosion, new Rectangle(-32, 0, 32, 32)),
-                    new Animation(explosion, new Rectangle(0, -32, 32, 32))
-               }, 3, soundEffect);
-            _animations = new List<MultiAnimation> { twoExplosion, threeExplosion, fourExplosion };
-            _game = new ChainReactGame(this, _animations, _players, new Vector2(WabeSize, ScalingFactor));
+            _game = new ChainReactGame(this, _players, new Vector2(WabeSize, ScalingFactor));
 
             var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
             var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
@@ -281,7 +257,7 @@ namespace ChainReact
             }
             if (SceneManager.ActiveScene == null)
             {
-                foreach (var wabe in _game.Wabes.Cast<Wabe>().ToList().Where(x => x.Animation.IsRunning).Select(x => x.Animation))
+                foreach (var wabe in _game.Wabes.Cast<Wabe>().ToList().Where(x => x.AnimationManager.IsRunning).Select(x => x.AnimationManager))
                 {
                     wabe.Draw(batch, time);
                 }
@@ -305,7 +281,7 @@ namespace ChainReact
                 player.Out = false;
                 player.Save();
             }
-            _game = new ChainReactGame(this, _animations, _players, new Vector2(WabeSize, ScalingFactor));
+            _game = new ChainReactGame(this, _players, new Vector2(WabeSize, ScalingFactor));
         }
 
         private Texture2D SelectTextureFromField(WabeField field)

@@ -6,6 +6,7 @@ using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
 using ChainReact.Core.Utilities;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game
@@ -24,13 +25,10 @@ namespace ChainReact.Core.Game
 
         public event EventHandler<DrawRequestedEventArgs> RequestDraw;
 
-        public ChainReactGame(Sharpex2D.Framework.Game game, IList<MultiAnimation> wabeExplosionAnimations, IEnumerable<Player> players, Vector2 size)
+        public ChainReactGame(Sharpex2D.Framework.Game game, IEnumerable<Player> players, Vector2 size)
         {
             Game = game;
             Queue = new GameQueue();
-            var twoWabeExplosion = wabeExplosionAnimations[0];
-            var threeWabeExplosion = wabeExplosionAnimations[1];
-            var fourWabeExplosion = wabeExplosionAnimations[2];
             Players = players.OrderBy(p => p.Id).ToList();
             Wabes = new Wabe[6, 6];
             for (var x = 0; x <= 5; x++)
@@ -50,10 +48,7 @@ namespace ChainReact.Core.Game
                     {
                         type = WabeType.FourWabe;
                     }
-                    var animation = (type == WabeType.TwoWabe)
-                        ? twoWabeExplosion
-                        : (type == WabeType.ThreeWabe) ? threeWabeExplosion : fourWabeExplosion;
-                    Wabes[x, y] = new Wabe(this, type, x, y, animation, size);
+                    Wabes[x, y] = new Wabe(this, type, x, y, size, "ExplosionSound");
                 }
             }
             CurrentPlayer = Players.First(t => !t.Out);

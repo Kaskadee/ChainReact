@@ -12,6 +12,7 @@ namespace ChainReact.UI.Base
 
         private MouseState _currentMouseState;
         private Rectangle _mouseRectangle;
+        private ElementManager _manager;
 
         public Game Game { get; protected set; }
 
@@ -26,7 +27,13 @@ namespace ChainReact.UI.Base
         protected Control(Game game, ElementManager elementManager)
         {
             Game = game;
+            _manager = elementManager;
             elementManager.AddRootElement(this);
+        }
+
+        public void SetInputState(InputState state)
+        {
+            _manager.SetInputState(state);   
         }
 
         public override void InputStateReceived(InputState inputState)
