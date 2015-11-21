@@ -1,0 +1,4 @@
+[submodule "Sharpex2D"]
+	path = Sharpex2D
+	url = https://github.com/KaskadekingDE/Sharpex2D
+	branch = api-2-working
