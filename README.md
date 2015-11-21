@@ -10,7 +10,7 @@ The idea from this game came from a minigame of a german Minecraft server ([Timo
 The game is still in development, but you can already play with a partner ;)
 
 ### Version
-v 1.0 Beta
+v0.1 Beta 1
 
 ### Todos
 See ToDo.txt ;)
