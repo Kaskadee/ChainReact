@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Sharpex2D.Framework;
 
 namespace ChainReact.Core.Game
 {
     public class GameQueue
     {
-        private readonly Random _random = new Random();
         private readonly Dictionary<int, List<Action<GameTime>>> _queuedActions = new Dictionary<int, List<Action<GameTime>>>();
 
         public bool IsActionQueued => _queuedActions.Count > 0;
@@ -18,7 +16,7 @@ namespace ChainReact.Core.Game
         /// </summary>
         public int Add(List<Action<GameTime>> act)
         {
-            var id = _random.Next(0, 99999);
+            var id = GetNextAvailableId();
             _queuedActions.Add(id, act);
             return id;
         }
@@ -39,6 +37,16 @@ namespace ChainReact.Core.Game
             var orginal = _queuedActions;
             var copy = orginal.ToDictionary(originalPair => originalPair.Key, originalPair => originalPair.Value);
             return copy;
+        }
+
+        private int GetNextAvailableId()
+        {
+            var id = 0;
+            while(_queuedActions.ContainsKey(id))
+            {
+                id++;
+            }
+            return id;
         }
     }
 }

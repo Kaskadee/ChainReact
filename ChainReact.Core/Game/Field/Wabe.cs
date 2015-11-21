@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Layout;
 using ChainReact.Core.Game.Objects;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
-using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Field
 {
@@ -58,6 +55,7 @@ namespace ChainReact.Core.Game.Field
         /// <param name="x">The x position.</param>
         /// <param name="y">The y position.</param>
         /// <param name="size">The size of the wabe (Size, ScalingFactor).</param>
+        /// <param name="resourceName">The resource name of the explosion sound</param>
         public Wabe(ChainReactGame game, WabeType type, int x, int y, Vector2 size, string resourceName ="")
         {
             _game = game;
@@ -221,7 +219,7 @@ namespace ChainReact.Core.Game.Field
                     {5, new Vector2(32, 0) },
                     {7, new Vector2(0, 32) }
                 };
-                var vect = Vector2.Zero;
+                Vector2 vect;
                 var success = dict.TryGetValue(wabeField.Id, out vect);
                 if (!success) throw new InvalidOperationException("Can't get position of animation from wabefield");
                 AnimationManager.CreateNew(new Rectangle(vect.X, vect.Y, 32, 32), true);

@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using ChainReact.Core;
-using ChainReact.Core.Game.Objects;
 using ChainReact.Input;
 using ChainReact.UI;
 using ChainReact.UI.Base;
 using ChainReact.UI.Types;
-using ChainReact.Utilities;
 using Sharpex2D.Framework;
-using Sharpex2D.Framework.Content;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Scenes
@@ -29,6 +26,9 @@ namespace ChainReact.Scenes
         private Checkbox _fieldLines;
         private Checkbox _wabeLines;
         private Checkbox _borderLines;
+
+        private Label _header;
+        private Label _errorLabel;
 
         private readonly Coverage _orangeCoverage = new Coverage(new Color(0, 71, 171, 255));
 
@@ -50,17 +50,22 @@ namespace ChainReact.Scenes
             {
                 foreach (
                     var clickable in
-                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && control is IClickableControl).Cast<IClickableControl>())
+                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && ((Control)control).Visible && ((Control)control).Enabled && control is IClickableControl).Cast<IClickableControl>())
                 {
                     clickable.Clicked(gameTime);
                 }
                 foreach (
                     var checkable in
-                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && control is ICheckableControl).Cast<ICheckableControl>())
+                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && ((Control)control).Visible && ((Control)control).Enabled && control is ICheckableControl).Cast<ICheckableControl>())
                 {
                     checkable.Checked(gameTime);
                 }
             }
+            if (!ResourceManager.Instance.SoundAvailable)
+            {
+                _errorLabel.Text = "No available audio devices where found. " + Environment.NewLine + "Restart the game if you plugged in an audio device.";
+            }
+            _errorLabel.Visible = !string.IsNullOrEmpty(_errorLabel.Text);
         }
 
         public override void OnDraw(SpriteBatch spriteBatch, GameTime gameTime)
@@ -133,6 +138,13 @@ namespace ChainReact.Scenes
                 Tag = "BorderLines"
             };
 
+            _errorLabel = new Label(_game, ElementManager, "", "DefaultFont", Color.Red)
+            {
+                Visible = false,
+                Enabled = true,
+                Bounds = new Rectangle(25, 700, 1, 1)
+            };
+
             _playerOne.OnCheckedChanged += PlayersChanged;
             _playerTwo.OnCheckedChanged += PlayersChanged;
             _playerThree.OnCheckedChanged += PlayersChanged;
@@ -149,7 +161,7 @@ namespace ChainReact.Scenes
                 headerTex += "-";
             } while (font.MeasureString(headerTex).X < (_game.Window.ClientSize.X - 60));
 
-            var lblHeader = new Label(_game, ElementManager, headerTex, "ButtonFont", Color.White)
+            _header = new Label(_game, ElementManager, headerTex, "ButtonFont", Color.White)
             {
                 Bounds = new Rectangle(25, 25, 1, 1),
                 Enabled = true
@@ -189,7 +201,7 @@ namespace ChainReact.Scenes
             }
         }
 
-        private void PlayersChanged(object sender, System.EventArgs e)
+        private void PlayersChanged(object sender, EventArgs e)
         {
             var checkboxList = new List<Checkbox> { _playerOne, _playerTwo, _playerThree, _playerFour };
             foreach (var player in GameSettings.Instance.AvailablePlayers)

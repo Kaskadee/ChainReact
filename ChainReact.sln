@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainReact.Core", "ChainReact.Core\ChainReact.Core.csproj", "{E80F967D-AFFC-4598-A526-BB001B90E47A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainReact.Tests", "ChainReact.Tests\ChainReact.Tests.csproj", "{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainReact", "ChainReact\ChainReact.csproj", "{E3B81197-BFFC-46C5-9E6B-5DCAC8CFE904}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainReact.UI", "ChainReact.UI\ChainReact.UI.csproj", "{68CA5C96-CE8D-44DE-AD06-1D523C602E27}"
@@ -27,14 +25,6 @@ Global
 		{E80F967D-AFFC-4598-A526-BB001B90E47A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E80F967D-AFFC-4598-A526-BB001B90E47A}.Release|x86.ActiveCfg = Release|x86
 		{E80F967D-AFFC-4598-A526-BB001B90E47A}.Release|x86.Build.0 = Release|x86
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Debug|x86.ActiveCfg = Debug|x86
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Debug|x86.Build.0 = Debug|x86
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Release|x86.ActiveCfg = Release|x86
-		{B18D19C1-7F92-4C7C-AF66-DABC5EFEE7F4}.Release|x86.Build.0 = Release|x86
 		{E3B81197-BFFC-46C5-9E6B-5DCAC8CFE904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3B81197-BFFC-46C5-9E6B-5DCAC8CFE904}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3B81197-BFFC-46C5-9E6B-5DCAC8CFE904}.Debug|x86.ActiveCfg = Debug|x86

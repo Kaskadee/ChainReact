@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ChainReact.Core.Game.Animations.Base;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
-using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
@@ -25,7 +23,7 @@ namespace ChainReact.Core.Game.Animations
 
         public ExplosionManager(List<Explosion> animations, int loops, SoundEffect effect)
         {
-            if (effect != null)
+            if (effect != null && ResourceManager.Instance.SoundAvailable)
             {
                 Sound = effect;
                 Sound.Initialize();
@@ -37,7 +35,7 @@ namespace ChainReact.Core.Game.Animations
         public void Start()
         {
             IsRunning = true;
-            if (Sound != null && Sound.PlaybackState != PlaybackState.Playing)
+            if (Sound != null && ResourceManager.Instance.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
             {
                 Sound.Play();
             }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using Sharpex2D.Framework;
 
 namespace ChainReact.Core.Game.Animations.Base

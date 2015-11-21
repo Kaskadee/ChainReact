@@ -12,7 +12,7 @@ namespace ChainReact.UI.Base
 
         private MouseState _currentMouseState;
         private Rectangle _mouseRectangle;
-        private ElementManager _manager;
+        private readonly ElementManager _manager;
 
         public Game Game { get; protected set; }
 

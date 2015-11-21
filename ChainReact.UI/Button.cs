@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ChainReact.Core;
 using ChainReact.UI.Base;
 using ChainReact.UI.Types;
@@ -35,6 +32,7 @@ namespace ChainReact.UI
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+            if (!Visible) return;
             var size = Font.MeasureString(Text);
 
             spriteBatch.DrawTexture(IsHovered ? _hoveredTexture : _texture,

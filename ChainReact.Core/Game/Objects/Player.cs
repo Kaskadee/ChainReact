@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
-using ChainReact.Core.Utilities;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Objects
@@ -36,7 +33,7 @@ namespace ChainReact.Core.Game.Objects
 
         public Player(int id, string name, Expression<Func<Color>> colorExpression)
         {
-            if(Id == 0)
+            if(id == 0)
                 throw new IndexOutOfRangeException("Id must be greater than 0");
             var colorFunc = colorExpression.Compile();
             ColorName = ((MemberExpression) colorExpression.Body).Member.Name;
@@ -48,7 +45,7 @@ namespace ChainReact.Core.Game.Objects
 
         public Player(int id, string name, Expression<Func<Color>> colorExpression, int score, int wins)
         {
-            if (Id == 0)
+            if (id == 0)
                 throw new IndexOutOfRangeException("Id must be greater than 0");
             var colorFunc = colorExpression.Compile();
             ColorName = ((MemberExpression)colorExpression.Body).Member.Name;
@@ -70,7 +67,10 @@ namespace ChainReact.Core.Game.Objects
             if (Id == 0)
                 throw new IndexOutOfRangeException("Id must be greater than 0");
 
-            if (!Directory.Exists(_saveFileInfo.DirectoryName)) Directory.CreateDirectory(_saveFileInfo.DirectoryName);
+            if (_saveFileInfo.DirectoryName != null && !Directory.Exists(_saveFileInfo.DirectoryName))
+            {
+                Directory.CreateDirectory(_saveFileInfo.DirectoryName);
+            }
             if(!_saveFileInfo.Exists) _saveFileInfo.Create().Close();
             var serializer = new XmlSerializer(typeof(Player));
             using (var fs = _saveFileInfo.OpenWrite())
@@ -82,7 +82,7 @@ namespace ChainReact.Core.Game.Objects
 
         public static Player Load(FileInfo path)
         {
-            if (!Directory.Exists(path.DirectoryName) || !path.Exists) return null;
+            if (path.DirectoryName != null && !Directory.Exists(path.DirectoryName) || !path.Exists) return null;
             var serializer = new XmlSerializer(typeof(Player));
             using (var fs = path.OpenRead())
             {

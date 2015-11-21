@@ -1,4 +1,5 @@
-﻿using Sharpex2D.Framework;
+﻿using ChainReact.Core.Game.Animations.Base;
+using Sharpex2D.Framework;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations

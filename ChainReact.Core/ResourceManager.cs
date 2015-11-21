@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Content;
 
 namespace ChainReact.Core
 {
     public class ResourceManager
     {
-        public bool SoundAvailable { get; set; }
+        public SoundManager SoundManager { get; set; }
+        public bool SoundAvailable => SoundManager != null && SoundManager.IsSupported;
 
         private static ResourceManager _instance;
         public static ResourceManager Instance => _instance ?? (_instance = new ResourceManager());

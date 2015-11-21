@@ -29,6 +29,7 @@ namespace ChainReact.UI
 
         public override void Draw(SpriteBatch spriteBatch, GameTime time)
         {
+            if (!Visible) return;
             var tex = (IsChecked) ? Textures[0] : Textures[1];
             tex = (Enabled) ? tex : (IsChecked) ? Textures[2] : Textures[3];
             spriteBatch.DrawTexture(tex, Bounds, Color.White);

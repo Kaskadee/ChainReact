@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using ChainReact.Core;
-using ChainReact.Core.Game;
 using ChainReact.Extensions;
-using Sharpex2D.Framework.Audio;
-using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact
 {

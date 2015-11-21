@@ -37,10 +37,14 @@ namespace ChainReact
 
         public void Save(FileInfo info)
         {
-            if (!Directory.Exists(info.DirectoryName)) Directory.CreateDirectory(info.DirectoryName);
+            if (info.DirectoryName != null && !Directory.Exists(info.DirectoryName))
+            {
+                Directory.CreateDirectory(info.DirectoryName);
+            }
+
             if (!File.Exists(info.FullName)) info.Create().Close();
 
-            var serializer = new XmlSerializer(typeof (GameSettings));
+            var serializer = new XmlSerializer(typeof(GameSettings));
             using (var fs = info.OpenWrite())
             {
                 fs.SetLength(0);
@@ -54,10 +58,10 @@ namespace ChainReact
 
         public void Load(FileInfo info, DirectoryInfo players)
         {
-            if (!Directory.Exists(info.DirectoryName) || !File.Exists(info.FullName))
+            if (info.DirectoryName != null && !Directory.Exists(info.DirectoryName) || !File.Exists(info.FullName))
             {
                 Directory.CreateDirectory(info.DirectoryName);
-                if(!File.Exists(info.FullName)) info.Create().Close();
+                if (!File.Exists(info.FullName)) info.Create().Close();
                 // Load default settings
                 FieldLines = true;
                 BorderLines = true;

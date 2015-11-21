@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ChainReact.Core;
-using ChainReact.Core.Utilities;
-using ChainReact.UI.Base;
-using ChainReact.UI.Types;
-using Sharpex2D.Framework;
-using Sharpex2D.Framework.Input;
-using Sharpex2D.Framework.Rendering;
-using Sharpex2D.Framework.UI;
-
-namespace ChainReact.UI
+﻿namespace ChainReact.UI
 {
     // TODO Implement Textbox
     public class Textbox

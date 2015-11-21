@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
 using ChainReact.Core.Utilities;
 using Sharpex2D.Framework;
-using Sharpex2D.Framework.Audio;
-using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game
 {

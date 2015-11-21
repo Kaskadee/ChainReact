@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ChainReact.Core.Game.Objects;
 
 namespace ChainReact.Core.Utilities

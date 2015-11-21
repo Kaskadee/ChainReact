@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sharpex2D.Framework.Rendering;
+﻿using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.UI.Extensions
 {

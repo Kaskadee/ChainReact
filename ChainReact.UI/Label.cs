@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ChainReact.Core;
+﻿using ChainReact.Core;
 using ChainReact.UI.Base;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Rendering;
@@ -21,6 +17,7 @@ namespace ChainReact.UI
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
+            if (!Visible) return;
             spriteBatch.DrawString(Text, Font, Position, Color);
             base.Draw(spriteBatch, gameTime);
         }

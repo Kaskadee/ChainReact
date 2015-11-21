@@ -9,8 +9,6 @@ namespace ChainReact.Input
 {
     public class InputManager : IInputController, IUpdateable
     {
-        private Game _game;
-
         public List<IInputController> Controllers { get; set; }
 
         public int Priority { get; }
@@ -21,10 +19,9 @@ namespace ChainReact.Input
 
         public InputState State { get; }
 
-        public InputManager(Game game)
+        public InputManager()
         {
             Priority = 0;
-            _game = game;
             State = null;
             Controllers = new List<IInputController> { new MouseDevice(1), new KeyboardDevice(2) };
             Clicked = new Trigger(false);

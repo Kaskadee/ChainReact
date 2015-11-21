@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 using ChainReact.Core;
 using ChainReact.Core.Game;
-using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
 using ChainReact.Input;
@@ -67,12 +65,13 @@ namespace ChainReact
             window.Title = "ChainReact - Development Build";
             Content.RootPath = "Content";
             SoundManager = new WaveOutSoundManager();
+            ResourceManager.Instance.SoundManager = SoundManager;
         }
 
         public override void Initialize()
         {
             var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
-            var players = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "players");
+            var players = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "Players");
             if (!players.Exists) players.Create();
             GameSettings.Instance.Load(gameInfo, players);
             base.Initialize();
@@ -108,9 +107,12 @@ namespace ChainReact
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExit", "Textures/ButtonExit");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExitHovered", "Textures/ButtonExitHovered");
 
-            var sound = Content.Load<Sound>("Sounds/ExplosionSound");
-            _effect = new SoundEffect(sound);
-            ResourceManager.Instance.ImportResource("ExplosionSound", _effect);
+            if (ResourceManager.Instance.SoundAvailable)
+            {
+                var sound = Content.Load<Sound>("Sounds/ExplosionSound");
+                _effect = new SoundEffect(sound);
+                ResourceManager.Instance.ImportResource("ExplosionSound", _effect);
+            }
 
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
@@ -125,7 +127,7 @@ namespace ChainReact
             var fieldSize = (int)((WabeSize * ScalingFactor) / 3);
             _fieldBorder = CreateBorderFromColor(fieldSize, fieldSize, 1, Color.Black);
 
-            _input = new InputManager(this);
+            _input = new InputManager();
 
             _mainMenuScene = new MainMenuScene(this, _input);
             SceneManager.Add(_mainMenuScene);
