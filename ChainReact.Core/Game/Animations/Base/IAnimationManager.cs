@@ -11,7 +11,7 @@ namespace ChainReact.Core.Game.Animations.Base
         bool AllFinished { get; }
         bool IsRunning { get; }
 
-        void Start();
+        void Start(out string error);
         void Stop();
         void Reset();
 

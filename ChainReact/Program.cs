@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ChainReact.Extensions;
+using Sharpex2D.Framework;
 
 namespace ChainReact
 {
@@ -18,9 +20,9 @@ namespace ChainReact
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadException += Application_ThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            var game = new MainGame();
-            game.Run();
+            Application.Run(new FrmLoading());
         }
+
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;

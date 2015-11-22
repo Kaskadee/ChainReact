@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Layout;
 using ChainReact.Core.Game.Objects;
@@ -155,14 +156,15 @@ namespace ChainReact.Core.Game.Field
                     var field = wabePair.Value;
                     wabe.Set(owner, field);
                 }
-                Player winner;
-                _game.CheckWin(out winner);
+                _game.CheckWin();
             }
             else
             {
                 if (!AnimationManager.IsRunning)
                 {
-                    AnimationManager.Start();
+                    string error;
+                    AnimationManager.Start(out error);
+                    ResourceManager.Instance.LastSoundError = error;
                     var actionList = new List<Action<GameTime>> { Explode, AnimationManager.Update };
                     _id = _game.Queue.Add(actionList);
                 }
@@ -179,8 +181,7 @@ namespace ChainReact.Core.Game.Field
             var field = Fields.First(i => i.Type == WabeFieldType.Unpowered);
             if (field != null) field.Type = WabeFieldType.Powered;
             if (Owner != owner) Owner = owner;
-            Player winner;
-            if (_game.CheckWin(out winner))
+            if (_game.CheckWin())
             {
                 return;
             }
@@ -197,8 +198,7 @@ namespace ChainReact.Core.Game.Field
             }
             if (field != null) field.Type = WabeFieldType.Powered;
             if (Owner != owner) Owner = owner;
-            Player winner;
-            if (_game.CheckWin(out winner))
+            if (_game.CheckWin())
             {
                 return;
             }

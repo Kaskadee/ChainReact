@@ -19,6 +19,7 @@ namespace ChainReact.Core.Game
 
         public bool GameOver { get; private set; }
         public string Message { get; private set; }
+        public Player Winner { get; private set; }
 
         public ChainReactGame(Sharpex2D.Framework.Game game, IEnumerable<Player> players, Vector2 size)
         {
@@ -105,9 +106,8 @@ namespace ChainReact.Core.Game
             return true;
         }
 
-        public bool CheckWin(out Player winner)
+        public bool CheckWin()
         {
-            winner = null;
             if (GameOver) return true;
             var wabeList = Wabes.Cast<Wabe>().ToList();
             foreach (var player in Players)
@@ -132,8 +132,8 @@ namespace ChainReact.Core.Game
                     var reason = $"{player.Name} is last man standing!";
                     GameOver = true;
                     Message = reason;
-                    winner = player;
-                    winner.Wins++;
+                    Winner = player;
+                    Winner.Wins++;
                     return true;
                 }
                 if (wabeList.Count(w => w.Owner != null && w.Owner == player) >= 25)
@@ -141,8 +141,8 @@ namespace ChainReact.Core.Game
                     var reason = $"{player.Name} has captured 25 wabes.";
                     GameOver = true;
                     Message = reason;
-                    winner = player;
-                    winner.Wins++;
+                    Winner = player;
+                    Winner.Wins++;
                     return true;
                 }
             }

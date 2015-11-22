@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sharpex2D.Framework.Audio;
+using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Content;
 
 namespace ChainReact.Core
@@ -8,7 +9,9 @@ namespace ChainReact.Core
     public class ResourceManager
     {
         public SoundManager SoundManager { get; set; }
-        public bool SoundAvailable => SoundManager != null && SoundManager.IsSupported;
+        public bool SoundAvailable => SoundManager != null && SoundManager.IsSupported && DeviceCount > 0;
+        public int DeviceCount => ((WaveOutSoundManager) SoundManager).GetDeviceCount();
+        public string LastSoundError { get; set; }
 
         private static ResourceManager _instance;
         public static ResourceManager Instance => _instance ?? (_instance = new ResourceManager());

@@ -32,12 +32,20 @@ namespace ChainReact.Core.Game.Animations
             MaxLoops = loops;
         }
 
-        public void Start()
+        public void Start(out string soundError)
         {
+            soundError = null;
             IsRunning = true;
             if (Sound != null && ResourceManager.Instance.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
             {
-                Sound.Play();
+                try
+                {
+                    Sound.Play();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    soundError = ex.Message;
+                }
             }
         }
 

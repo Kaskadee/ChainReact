@@ -15,12 +15,12 @@ namespace ChainReact.Scenes
         private readonly Game _game;
         private readonly InputManager _input;
         private SettingsScene _settingsScene;
+        private HowToPlayScene _howToPlayScene;
 
         private Button _continuebutton;
+        private Button _howToPlay;
         private Button _settingsButton;
         private Button _exitButton;
-
-        //private Textbox _box;
 
         private readonly Coverage _blackCoverage = new Coverage(Color.Black);
 
@@ -60,12 +60,13 @@ namespace ChainReact.Scenes
             _continuebutton.Draw(spriteBatch, gameTime);
             _settingsButton.Draw(spriteBatch, gameTime);
             _exitButton.Draw(spriteBatch, gameTime);
-            //_box.Draw(spriteBatch, gameTime);
+            _howToPlay.Draw(spriteBatch, gameTime);
         }
 
         public void LoadContent()
         {
-            _settingsScene = new SettingsScene(_game, _input);
+            _settingsScene = new SettingsScene(_game, _input, this);
+            _howToPlayScene = new HowToPlayScene(_game, _input, this);
             _game.SceneManager.Add(_settingsScene);
             _continuebutton = new Button(_game, ElementManager, "ButtonMenu", "ButtonMenuHovered", "ButtonFont")
             {
@@ -73,33 +74,44 @@ namespace ChainReact.Scenes
                 Text = "Continue"
             };
             _continuebutton.OnClick += ContinueClick;
-            _settingsButton = new Button(_game, ElementManager, "ButtonSettings", "ButtonSettingsHovered", "ButtonFont")
+            _howToPlay = new Button(_game, ElementManager, "ButtonHowToPlay", "ButtonHowToPlayHovered", "ButtonFont")
             {
                 Bounds = new Rectangle(250, 275, 250, 50),
+                Text = "How to play"
+            };
+            _howToPlay.OnClick += HowToPlay;
+            _settingsButton = new Button(_game, ElementManager, "ButtonSettings", "ButtonSettingsHovered", "ButtonFont")
+            {
+                Bounds = new Rectangle(250, 350, 250, 50),
                 Text = "Settings"
             };
             _settingsButton.OnClick += SettingsClick;
             _exitButton = new Button(_game, ElementManager, "ButtonExit", "ButtonExitHovered", "ButtonFont")
             {
-                Bounds = new Rectangle(250, 350, 250, 50),
+                Bounds = new Rectangle(250, 425, 250, 50),
                 Text = "Exit"
             };
-            //_box = new Textbox(_game, ElementManager, "", "ButtonFont", Color.White, new Rectangle(250, 425, 200, 50))
-            //{
-            //    Enabled = true
-            //};
             _exitButton.OnClick += (sender, args) => _game.Exit();
+        }
+
+        private void HowToPlay(object sender, EventArgs e)
+        {
+            var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
+            _game.SceneManager.ChangeWithTransition(_howToPlayScene, fadeInOut);
+            OnSceneDeactivated();
         }
 
         private void SettingsClick(object sender, EventArgs e)
         {
-            _game.SceneManager.ActiveScene = _settingsScene;
+            var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
+            _game.SceneManager.ChangeWithTransition(_settingsScene, fadeInOut);
             OnSceneDeactivated();
         }
 
         private void ContinueClick(object sender, EventArgs e)
         {
-            _game.SceneManager.ActiveScene = null;
+            var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
+            _game.SceneManager.ChangeWithTransition(null, fadeInOut);
             OnSceneDeactivated();
         }
 

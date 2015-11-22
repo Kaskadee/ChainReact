@@ -29,13 +29,17 @@ namespace ChainReact.Scenes
 
         private Label _header;
         private Label _errorLabel;
+        private Button _backButton;
 
-        private readonly Coverage _orangeCoverage = new Coverage(new Color(0, 71, 171, 255));
+        private readonly Scene _mainMenuScene;
 
-        public SettingsScene(Game game, InputManager input)
+        private readonly Coverage _blueCoverage = new Coverage(new Color(0, 71, 171, 255));
+
+        public SettingsScene(Game game, InputManager input, Scene mainMenu)
         {
             _game = game;
             _input = input;
+            _mainMenuScene = mainMenu;
             LoadContent();
         }
 
@@ -70,7 +74,7 @@ namespace ChainReact.Scenes
 
         public override void OnDraw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            _orangeCoverage.DrawField(_game, spriteBatch);
+            _blueCoverage.DrawField(_game, spriteBatch);
             foreach (var control in ElementManager.ToArray())
             {
                 control.Draw(spriteBatch, gameTime);
@@ -138,11 +142,26 @@ namespace ChainReact.Scenes
                 Tag = "BorderLines"
             };
 
+            _backButton = new Button(_game, ElementManager, "ButtonExit", "ButtonExitHovered", "ButtonFont")
+            {
+                Enabled = true,
+                Color = Color.White,
+                Text = "Return to main menu",
+                Bounds = new Rectangle(25, 700, 275, 50)
+            };
+
+            _backButton.OnClick += (s, e) =>
+            {
+                var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
+                _game.SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
+                OnSceneDeactivated();
+            };
+
             _errorLabel = new Label(_game, ElementManager, "", "DefaultFont", Color.Red)
             {
                 Visible = false,
                 Enabled = true,
-                Bounds = new Rectangle(25, 700, 1, 1)
+                Bounds = new Rectangle(25, 625, 1, 1)
             };
 
             _playerOne.OnCheckedChanged += PlayersChanged;

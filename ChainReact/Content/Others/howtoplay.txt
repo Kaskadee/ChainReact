@@ -1,0 +1,18 @@
+How to play?
+------------
+
+1. This game is for 2 to 4 players
+
+2. Left-click on a wabe 
+===> activates the field and sets the player color
+
+3. You can only set in empty or your own wabes
+
+4. Each player has one turn per round
+
+5. If all activatable fields (Lamps) in one wabe are active the wabe 
+explodes and gives each surrounding field one color
+
+6. You win if you occupy 25 wabes 
+--or--
+if you take all wabes from the other players

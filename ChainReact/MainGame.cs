@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using ChainReact.Core;
 using ChainReact.Core.Game;
 using ChainReact.Core.Game.Field;
@@ -13,6 +14,7 @@ using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Audio.WaveOut;
+using Sharpex2D.Framework.Content;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.Rendering.OpenGL;
 using Button = ChainReact.UI.Button;
@@ -106,6 +108,10 @@ namespace ChainReact
             ResourceManager.Instance.LoadResource<SpriteFont>(this, "DefaultFont", "Fonts/Default");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExit", "Textures/ButtonExit");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonExitHovered", "Textures/ButtonExitHovered");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonHowToPlay", "Textures/ButtonHTP");
+            ResourceManager.Instance.LoadResource<Texture2D>(this, "ButtonHowToPlayHovered", "Textures/ButtonHTPHovered");
+            ResourceManager.Instance.LoadResource<TextFile>(this, "HowToPlay", "Others/howtoplay");
+            ResourceManager.Instance.LoadResource<SpriteFont>(this, "WinnerFont", "Fonts/WinnerFont");
 
             if (ResourceManager.Instance.SoundAvailable)
             {
@@ -130,8 +136,13 @@ namespace ChainReact
             _input = new InputManager();
 
             _mainMenuScene = new MainMenuScene(this, _input);
+            var fadeInOut = new FadeInOutTransition(Color.Black, 0f, 800f);
+            SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
             SceneManager.Add(_mainMenuScene);
-            SceneManager.ActiveScene = _mainMenuScene;
+            SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
+            var controlFromHandle = Control.FromHandle(GameWindow.Default.Handle);
+            var form = controlFromHandle as FrmLoading;
+            form?.DestroyControls();
         }
 
         public override void Update(GameTime time)
@@ -149,14 +160,11 @@ namespace ChainReact
             var menu = _input.Menu.Value;
             if (menu && SceneManager.ActiveScene != _mainMenuScene && !_mainMenuScene.ElementManager.Any(t => t.GetType() == typeof(Button) && ((Button)t).IsClicked))
             {
-                SceneManager.ActiveScene = _mainMenuScene;
+                var fadeInOut = new FadeInOutTransition(Color.Black, 1000f, 800f);
+                SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
                 return;
             }
-            if (SceneManager.ActiveScene != null)
-            {
-                SceneManager.ActiveScene.OnUpdate(time);
-                return;
-            }
+            SceneManager.Update(time);
 
             if (!_game.GameOver)
             {
@@ -259,6 +267,10 @@ namespace ChainReact
                     batch.DrawString(_game.Message, font, new Vector2(96, 680), Color.Black);
                 }
             }
+            if (!string.IsNullOrEmpty(ResourceManager.Instance.LastSoundError))
+            {
+                batch.DrawString("Failed to play a sound: " + ResourceManager.Instance.LastSoundError, font, new Vector2(96, 720), Color.Red);
+            }
             if (_game?.CurrentPlayer != null)
             {
                 batch.DrawString(_game.CurrentPlayer.Name + $"'s turn ({_game.CurrentPlayer.GetColorString()}) ({_game.CurrentPlayer.Wins} Wins)", font, new Vector2(96, 60), Color.Black);
@@ -270,7 +282,21 @@ namespace ChainReact
                     wabe.Draw(batch, time);
                 }
             }
-            SceneManager.ActiveScene?.OnDraw(batch, time);
+            if (_game.GameOver && _game.Winner != null)
+            {
+                var winFont = ResourceManager.Instance.GetResource<SpriteFont>("WinnerFont");
+                var midX = Get<GameWindow>().ClientSize.X / 2;
+                var midY = Get<GameWindow>().ClientSize.Y / 2;
+                var msg1 = _game.Winner.Name + " has won the game!";
+                var msg2 = "Press R to restart the game!";
+                var sizeMsg1 = winFont.MeasureString(msg1);
+                var sizeMsg2 = winFont.MeasureString(msg2);
+                var pos1 = new Vector2(midX - (sizeMsg1.X / 2), midY - (sizeMsg1.Y / 2) - 50);
+                var pos2 = new Vector2(midX - (sizeMsg2.X / 2), midY - (sizeMsg2.Y / 2) + 20);
+                batch.DrawString(msg1, winFont, pos1, Color.Crimson);
+                batch.DrawString(msg2, winFont, pos2, Color.Crimson);
+            }
+            SceneManager.Draw(batch, time);
             batch.End();
         }
 
