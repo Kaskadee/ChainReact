@@ -75,13 +75,18 @@
     <Compile Include="Game\Animations\Explosion.cs" />
     <Compile Include="Game\GameQueue.cs" />
     <Compile Include="Game\Layout\WabeLayout.cs" />
+    <Compile Include="Game\Objects\Map.cs" />
     <Compile Include="Game\Objects\Player.cs" />
     <Compile Include="Game\Field\Wabe.cs" />
     <Compile Include="Game\Field\WabeField.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceManager.cs" />
+    <Compile Include="Server\Client.cs" />
+    <Compile Include="Server\Server.cs" />
+    <Compile Include="Server\ServerCommands.cs" />
+    <Compile Include="Utilities\BinaryFormatterExtensions.cs" />
     <Compile Include="Utilities\ColorTextureConverter.cs" />
-    <Compile Include="Utilities\EnumerableExt.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Xml.Serialization;
 using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Layout;
 using ChainReact.Core.Game.Objects;
@@ -10,14 +11,18 @@ using Sharpex2D.Framework.Audio;
 
 namespace ChainReact.Core.Game.Field
 {
+    [Serializable]
     public class Wabe
     {
-        private Vector2 _size;
-        private int _id;
-        private int _poweredSpheres;
-        private readonly ChainReactGame _game;
+        [NonSerialized]
+        private ChainReactGame _game;
 
-        public ExplosionManager AnimationManager { get; }
+        public int Id { get; private set; }
+
+        private int _poweredSpheres;
+
+        [NonSerialized]
+        public ExplosionManager AnimationManager;
 
         public Player Owner { get; set; }
         public WabeLayout Layout { get; }
@@ -57,7 +62,7 @@ namespace ChainReact.Core.Game.Field
         /// <param name="y">The y position.</param>
         /// <param name="size">The size of the wabe (Size, ScalingFactor).</param>
         /// <param name="resourceName">The resource name of the explosion sound</param>
-        public Wabe(ChainReactGame game, WabeType type, int x, int y, Vector2 size, string resourceName ="")
+        public Wabe(ChainReactGame game, WabeType type, int x, int y, string resourceName ="")
         {
             _game = game;
             Type = type;
@@ -90,7 +95,6 @@ namespace ChainReact.Core.Game.Field
                     }
                     break;
             }
-            _size = size;
             var sound = ResourceManager.Instance.TryGetResource<SoundEffect>(resourceName);
             AnimationManager = new ExplosionManager(new List<Explosion>(), 3, sound)
             {
@@ -100,17 +104,27 @@ namespace ChainReact.Core.Game.Field
             PopulateExplosionManager();
         }
 
+        public ChainReactGame GetGame()
+        {
+            return _game;
+        }
+
+        public void SetGame(ChainReactGame game)
+        {
+            _game = game;
+        }
+
         private void Explode(GameTime time)
         {
             if (AnimationManager.AllFinished)
             {
-                if (_game.Queue.GetAllActions().ContainsKey(_id))
+                if (_game.Queue.GetAllActions().ContainsKey(Id))
                 {
-                    _game.Queue.Remove(_id);
+                    _game.Queue.Remove(Id);
                     AnimationManager.Reset();
                     PopulateExplosionManager();
                 }
-                var nearWabes = _game.FindNearWabes(X, Y).OrderBy(w => w.X + w.Y);
+                var nearWabes = _game.GameMap.GetNearWabes(X, Y).OrderBy(w => w.X + w.Y);
                 var poweredFields = Fields.ToList().Where(w => w.Type == WabeFieldType.Powered).OrderBy(w => w.Id);
                 var results = new Dictionary<Wabe, WabeField>();
                 _poweredSpheres = 0;
@@ -166,7 +180,7 @@ namespace ChainReact.Core.Game.Field
                     AnimationManager.Start(out error);
                     ResourceManager.Instance.LastSoundError = error;
                     var actionList = new List<Action<GameTime>> { Explode, AnimationManager.Update };
-                    _id = _game.Queue.Add(actionList);
+                    Id = _game.Queue.Add(actionList);
                 }
             }
         }
@@ -228,8 +242,8 @@ namespace ChainReact.Core.Game.Field
 
         public Vector2 GetPositionOfWabeCenter()
         {
-            var wabesize = _size.X;
-            var scalingfactor = _size.Y;
+            var wabesize = ChainReactGame.WabeSize;
+            var scalingfactor = ChainReactGame.ScalingFactor;
             var fullsize = wabesize * scalingfactor;
             var thirdsize = fullsize / 3;
             var x = X;

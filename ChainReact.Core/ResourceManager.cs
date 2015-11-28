@@ -42,7 +42,7 @@ namespace ChainReact.Core
             {
                 return (T)resource;
             }
-            throw new ContentLoadException("Asset couldn't be found! Maybe it isn't loaded?");
+            throw new ContentLoadException($"Asset {name} couldn't be found! Maybe it isn't loaded?");
         }
 
         [Obsolete]
@@ -53,7 +53,7 @@ namespace ChainReact.Core
             {
                 return resource;
             }
-            throw new ContentLoadException("Asset couldn't be found! Maybe it isn't loaded?");
+            throw new ContentLoadException($"Asset {name} couldn't be found! Maybe it isn't loaded?");
         }
 
         public T TryGetResource<T>(string name) where T : IContent

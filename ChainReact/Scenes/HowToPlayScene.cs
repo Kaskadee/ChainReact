@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using ChainReact.Core;
 using ChainReact.Input;
 using ChainReact.UI;
@@ -11,7 +8,6 @@ using ChainReact.UI.Types;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Content;
 using Sharpex2D.Framework.Rendering;
-using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Scenes
 {

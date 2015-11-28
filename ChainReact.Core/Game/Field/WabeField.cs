@@ -2,6 +2,7 @@
 
 namespace ChainReact.Core.Game.Field
 {
+    [Serializable]
     public class WabeField
     {
         public int Id { get; set; }
@@ -14,6 +15,7 @@ namespace ChainReact.Core.Game.Field
         }
     }
 
+    [Serializable]
     public enum WabeFieldType
     {
         Unused,
@@ -23,6 +25,7 @@ namespace ChainReact.Core.Game.Field
     }
 
     [Flags]
+    [Serializable]
     public enum WabeDirection
     {
         Left = 1,

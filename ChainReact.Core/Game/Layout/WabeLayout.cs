@@ -4,8 +4,10 @@ using Sharpex2D.Framework;
 
 namespace ChainReact.Core.Game.Layout
 {
+    [Serializable]
     public class WabeLayout
     {
+        [NonSerialized]
         private readonly Wabe _wabe;
 
         public WabeFieldType[] Fields { get; private set; }

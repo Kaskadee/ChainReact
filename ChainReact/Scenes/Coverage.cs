@@ -24,7 +24,7 @@ namespace ChainReact.Scenes
 
         private void LoadTexture(Color col)
         {
-            _coverage = ColorTextureConverter.CreateTextureFromColor(32, 32, col);
+            _coverage = TextureUtilities.CreateTextureFromColor(32, 32, col);
         }
     }
 }

@@ -135,7 +135,8 @@
     <Compile Include="Scenes\HowToPlayScene.cs" />
     <Compile Include="Scenes\MainMenuScene.cs" />
     <Compile Include="Scenes\SettingsScene.cs" />
-    <Compile Include="Utilities\ColorTextureConverter.cs" />
+    <Compile Include="Utilities\TextureUtilities.cs" />
+    <Compile Include="Utilities\DefaultCommands.cs" />
     <Compile Include="Utilities\Trigger.cs" />
     <EmbeddedResource Include="FrmLoading.resx">
       <DependentUpon>FrmLoading.cs</DependentUpon>

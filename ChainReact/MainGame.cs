@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Windows.Forms;
 using ChainReact.Core;
 using ChainReact.Core.Game;
 using ChainReact.Core.Game.Field;
 using ChainReact.Core.Game.Objects;
+using ChainReact.Core.Server;
+using ChainReact.Core.Utilities;
 using ChainReact.Input;
 using ChainReact.Scenes;
 using ChainReact.Utilities;
@@ -15,24 +20,28 @@ using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Content;
+using Sharpex2D.Framework.Network;
 using Sharpex2D.Framework.Rendering;
 using Sharpex2D.Framework.Rendering.OpenGL;
 using Button = ChainReact.UI.Button;
+using TextureUtilities = ChainReact.Utilities.TextureUtilities;
 
 namespace ChainReact
 {
     public class MainGame : Game
     {
-        #region Constants
-        public const int WabeSize = 64;
-        public const float ScalingFactor = 1.5F;
+        #region Network
+        private byte _statusCode;
+
+        private Map _map;
+        private Server _internalServer;
+        private NetworkPeer _clientPeer;
+
+        private Dictionary<string, Action<string>> _registeredCommands;
         #endregion
 
         #region Components
-        private ChainReactGame _game;
         private InputManager _input;
-
-        private List<Player> _players;
         #endregion
 
         #region Textures
@@ -48,9 +57,16 @@ namespace ChainReact
         private MainMenuScene _mainMenuScene;
         #endregion
 
-        private string _lastMessage;
+        #region Game Values
+        private string _currentPlayer;
+        private string _currentPlayerColor;
+        private string _winner;
 
-        public ChainReactGame ChainReact => _game;
+        private string _lastMessage;
+        private bool _gameOver;
+        #endregion
+
+        public bool IsReady => _statusCode == 200;
 
         public override void Setup(LaunchParameters launchParameters)
         {
@@ -76,25 +92,14 @@ namespace ChainReact
             var players = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "Players");
             if (!players.Exists) players.Create();
             GameSettings.Instance.Load(gameInfo, players);
+            _internalServer = new Server(ServerMode.Internal, NetworkPeer.Protocol.Tcp);
             base.Initialize();
 
         }
 
-        public override void Unload()
-        {
-            Save();
-            base.Unload();
-        }
-
-        public void Save()
-        {
-            var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
-            GameSettings.Instance.Save(gameInfo);
-        }
-
         public override void LoadContent()
         {
-            _gameField = ColorTextureConverter.CreateTextureFromColor(64, 64, Color.Gray);
+            _gameField = TextureUtilities.CreateTextureFromColor(64, 64, Color.Gray);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
@@ -122,20 +127,26 @@ namespace ChainReact
 
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
-            _players = GameSettings.Instance.Players;
+            _registeredCommands = new Dictionary<string, Action<string>>();
+            var defaultCommands = new DefaultCommands(this);
+            defaultCommands.RegisterCommands();
 
-            _game = new ChainReactGame(this, _players, new Vector2(WabeSize, ScalingFactor));
+            _clientPeer = new NetworkPeer(NetworkPeer.Protocol.Tcp) { MaxReceiveBuffer = 1000000 };
+            _clientPeer.Connect(new IPEndPoint(IPAddress.Loopback, 22794));
+            _clientPeer.MessageArrived += MessageReceived;
+            _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes("request")));
 
-            var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
-            var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
-            _wabeBorder = CreateBorderFromColor(64, 64, 1, Color.Olive);
-            _gameBorder = CreateBorderFromColor((int)fullWabeSizeX, (int)fullWabeSizeY, 3, Color.White);
-            var fieldSize = (int)((WabeSize * ScalingFactor) / 3);
-            _fieldBorder = CreateBorderFromColor(fieldSize, fieldSize, 1, Color.Black);
+
+            var fullWabeSizeX = ChainReactGame.FullSize * Map.DefaultLengthX;
+            var fullWabeSizeY = ChainReactGame.FullSize * Map.DefaultLengthY;
+            _wabeBorder = TextureUtilities.CreateBorderFromColor(64, 64, 1, Color.Olive);
+            _gameBorder = TextureUtilities.CreateBorderFromColor((int)fullWabeSizeX, (int)fullWabeSizeY, 3, Color.White);
+            var fieldSize = (int)((ChainReactGame.FullSize) / 3);
+            _fieldBorder = TextureUtilities.CreateBorderFromColor(fieldSize, fieldSize, 1, Color.Black);
 
             _input = new InputManager();
-
             _mainMenuScene = new MainMenuScene(this, _input);
+
             var fadeInOut = new FadeInOutTransition(Color.Black, 0f, 800f);
             SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
             SceneManager.Add(_mainMenuScene);
@@ -147,15 +158,23 @@ namespace ChainReact
 
         public override void Update(GameTime time)
         {
-            if (_game.Queue.IsActionQueued)
-            {
-                var actions = _game.Queue.GetAllActions();
-                foreach (var act in actions.Select(x => x.Value).SelectMany(actPair => actPair))
-                {
-                    act?.Invoke(time);
-                }
-                return;
-            }
+            //if (_ready)
+            //{
+            //    var message = "set:1:1";
+            //    _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes(message)));
+            //    var message2 = "set:1:2";
+            //    _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes(message2)));
+            //    _ready = false;
+            //}
+            //if (_game.Queue.IsActionQueued)
+            //{
+            //    var actions = _game.Queue.GetAllActions();
+            //    foreach (var act in actions.Select(x => x.Value).SelectMany(actPair => actPair))
+            //    {
+            //        act?.Invoke(time);
+            //    }
+            //    return;
+            //}
             _input.Update(time);
             var menu = _input.Menu.Value;
             if (menu && SceneManager.ActiveScene != _mainMenuScene && !_mainMenuScene.ElementManager.Any(t => t.GetType() == typeof(Button) && ((Button)t).IsClicked))
@@ -166,29 +185,21 @@ namespace ChainReact
             }
             SceneManager.Update(time);
 
-            if (!_game.GameOver)
+            if (!_gameOver)
             {
                 if (_input.Clicked)
                 {
-                    var wabe = _game.ConvertAbsolutePositionToWabe(_input.Position, WabeSize * ScalingFactor);
-                    var field = wabe?.ConvertAbsolutePositionToWabeField(_input.Position, WabeSize * ScalingFactor);
+                    var wabe = _map.AbsoluteToWabe(_input.Position);
+                    var field = wabe?.ConvertAbsolutePositionToWabeField(_input.Position, ChainReactGame.FullSize);
                     if (field == null) return;
-                    string error;
-                    _game.Set(_game.CurrentPlayer.Id, wabe, field, out error);
-                    if (error != null)
-                    {
-                        _lastMessage = error;
-                    }
+                    Set(wabe.X, wabe.Y, field.Id);
                 }
-            }
-            if (_game.GameOver && _input != null && _input.Reset.Value)
-            {
-                ResetGame();
             }
         }
 
         public override void Draw(SpriteBatch batch, GameTime time)
         {
+            if (_map == null) return;
             var background = ResourceManager.Instance.GetResource<Texture2D>("Background");
             var font = ResourceManager.Instance.GetResource<SpriteFont>("DefaultFont");
             batch.Begin();
@@ -196,9 +207,9 @@ namespace ChainReact
             {
                 for (var y = 0; y < 8; y++)
                 {
-                    var tileX = x * WabeSize * ScalingFactor;
-                    var tileY = y * WabeSize * ScalingFactor;
-                    batch.DrawTexture(background, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                    var tileX = x * ChainReactGame.FullSize;
+                    var tileY = y * ChainReactGame.FullSize;
+                    batch.DrawTexture(background, new Rectangle(tileX, tileY, ChainReactGame.FullSize, ChainReactGame.FullSize));
                 }
             }
 
@@ -206,19 +217,19 @@ namespace ChainReact
             {
                 for (var y = 1; y < 7; y++)
                 {
-                    var tileX = x * WabeSize * ScalingFactor;
-                    var tileY = y * WabeSize * ScalingFactor;
-                    batch.DrawTexture(_gameField, new Rectangle(tileX, tileY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                    var tileX = x * ChainReactGame.FullSize;
+                    var tileY = y * ChainReactGame.FullSize;
+                    batch.DrawTexture(_gameField, new Rectangle(tileX, tileY, ChainReactGame.FullSize, ChainReactGame.FullSize));
                 }
             }
 
-            const float cut = ((float)WabeSize / 3) * ScalingFactor;
-            var fullWabeSizeX = WabeSize * ScalingFactor * _game.Wabes.GetLength(0);
-            var fullWabeSizeY = WabeSize * ScalingFactor * _game.Wabes.GetLength(1);
-            foreach (var wabe in _game.Wabes)
+            const float cut = (ChainReactGame.WabeSize / 3) * ChainReactGame.ScalingFactor;
+            var fullWabeSizeX = ChainReactGame.FullSize * _map.GetLengthX();
+            var fullWabeSizeY = ChainReactGame.FullSize * _map.GetLengthY();
+            foreach (var wabe in _map.Wabes)
             {
-                var wabeX = (wabe.X + 1) * WabeSize * ScalingFactor;
-                var wabeY = (wabe.Y + 1) * WabeSize * ScalingFactor;
+                var wabeX = (wabe.X + 1) * ChainReactGame.FullSize;
+                var wabeY = (wabe.Y + 1) * ChainReactGame.FullSize;
 
                 for (var x = 0; x <= 2; x++)
                 {
@@ -252,42 +263,35 @@ namespace ChainReact
                 }
 
 
-                if (GameSettings.Instance.WabeLines) batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, WabeSize * ScalingFactor, WabeSize * ScalingFactor));
+                if (GameSettings.Instance.WabeLines) batch.DrawTexture(_wabeBorder, new Rectangle(wabeX, wabeY, ChainReactGame.FullSize, ChainReactGame.FullSize));
             }
-            if (GameSettings.Instance.BorderLines) batch.DrawTexture(_gameBorder, new Rectangle(WabeSize * ScalingFactor, WabeSize * ScalingFactor, fullWabeSizeX, fullWabeSizeY));
+            if (GameSettings.Instance.BorderLines) batch.DrawTexture(_gameBorder, new Rectangle(ChainReactGame.FullSize, ChainReactGame.FullSize, fullWabeSizeX, fullWabeSizeY));
             if (!string.IsNullOrEmpty(_lastMessage))
             {
-                batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, font,
-                    new Vector2(96, 680), Color.Black);
+                batch.DrawString(_lastMessage, font, new Vector2(96, 680), Color.Black);
             }
-            else
-            {
-                if (!string.IsNullOrEmpty(_game.Message))
-                {
-                    batch.DrawString(_game.Message, font, new Vector2(96, 680), Color.Black);
-                }
-            }
+
             if (!string.IsNullOrEmpty(ResourceManager.Instance.LastSoundError))
             {
                 batch.DrawString("Failed to play a sound: " + ResourceManager.Instance.LastSoundError, font, new Vector2(96, 720), Color.Red);
             }
-            if (_game?.CurrentPlayer != null)
+            if (!string.IsNullOrEmpty(_currentPlayer))
             {
-                batch.DrawString(_game.CurrentPlayer.Name + $"'s turn ({_game.CurrentPlayer.GetColorString()}) ({_game.CurrentPlayer.Wins} Wins)", font, new Vector2(96, 60), Color.Black);
+                batch.DrawString(_currentPlayer + $"'s turn ({_currentPlayerColor})", font, new Vector2(96, 60), Color.Black);
             }
             if (SceneManager.ActiveScene == null)
             {
-                foreach (var wabe in _game.Wabes.Cast<Wabe>().ToList().Where(x => x.AnimationManager.IsRunning).Select(x => x.AnimationManager))
-                {
-                    wabe.Draw(batch, time);
-                }
+                //foreach (var wabe in _map.ToList().Where(x => x.AnimationManager.IsRunning).Select(x => x.AnimationManager))
+                //{
+                //    wabe.Draw(batch, time);
+                //}
             }
-            if (_game.GameOver && _game.Winner != null)
+            if (_gameOver && !string.IsNullOrEmpty(_winner))
             {
                 var winFont = ResourceManager.Instance.GetResource<SpriteFont>("WinnerFont");
                 var midX = Get<GameWindow>().ClientSize.X / 2;
                 var midY = Get<GameWindow>().ClientSize.Y / 2;
-                var msg1 = _game.Winner.Name + " has won the game!";
+                var msg1 = _winner + " has won the game!";
                 var msg2 = "Press R to restart the game!";
                 var sizeMsg1 = winFont.MeasureString(msg1);
                 var sizeMsg2 = winFont.MeasureString(msg2);
@@ -300,22 +304,13 @@ namespace ChainReact
             batch.End();
         }
 
-        private void ResetGame()
+        public override void Unload()
         {
-            foreach (var player in _players)
-            {
-                player.ExecutedFirstPlace = false;
-                player.Out = false;
-                player.Save();
-            }
-            _players = GameSettings.Instance.Players;
-            foreach (var player in _players)
-            {
-                player.ExecutedFirstPlace = false;
-                player.Out = false;
-                player.Save();
-            }
-            _game = new ChainReactGame(this, _players, new Vector2(WabeSize, ScalingFactor));
+            var gameInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "settings.dat");
+            GameSettings.Instance.Save(gameInfo);
+
+            _internalServer.Shutdown();
+            base.Unload();
         }
 
         private Texture2D SelectTextureFromField(WabeField field)
@@ -334,26 +329,75 @@ namespace ChainReact
             }
         }
 
-        private Texture2D CreateBorderFromColor(int width, int heigth, int penLength, Color color)
+        private void MessageReceived(object sender, IncomingMessageEventArgs e)
         {
-            var tex = new Texture2D(width, heigth);
-            tex.Lock();
-            for (var x = 0; x <= width - 1; x++)
+            var isStatusCode = e.Message.Data.Length == 1;
+            if (isStatusCode)
             {
-                for (var y = 0; y <= heigth - 1; y++)
-                    if ((penLength - x) > 0 || (penLength + x) > width - 1)
-                        tex[x, y] = color;
+                _statusCode = e.Message.Data[0];
             }
-
-            for (var y = 0; y <= heigth - 1; y++)
+            else
             {
-                for (var x = 0; x <= width - 1; x++)
-                    if ((penLength - y) > 0 || (penLength + y) > heigth - 1)
-                        tex[x, y] = color;
+                var msg = Encoding.UTF8.GetString(e.Message.Data);
+                var splitted = msg.Split(':');
+                var command = splitted[0];
+                if (_registeredCommands.ContainsKey(command))
+                {
+                    var val = _registeredCommands[command];
+                    val?.Invoke(msg);
+                }
+                else
+                {
+                    Console.WriteLine($@"The command ""{command}"" is not registered!");
+                }
             }
+        }
 
-            tex.Unlock();
-            return tex;
+        private void Set(int x, int y, int fieldId)
+        {
+            _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes("request")));
+            var messageString = $"set:{x}:{y}:{fieldId}";
+            var message = new OutgoingMessage(Encoding.UTF8.GetBytes(messageString));
+            _clientPeer.Send(message);
+        }
+
+        public void Send(string msg)
+        {
+            var outgoing = new OutgoingMessage(Encoding.UTF8.GetBytes(msg));
+            _clientPeer.Send(outgoing);
+        }
+
+        public void RegisterCommand(string command, Action<string> act)
+        {
+            if(_registeredCommands.ContainsKey(command))
+                throw new InvalidOperationException(command + " is already registered!");
+            _registeredCommands.Add(command, act);
+        }
+
+        public void SetMap(Map map)
+        {
+            _map = map;
+        }
+
+        public void SetMessage(string message)
+        {
+            _lastMessage = message;
+        }
+
+        public void SetGameover(bool gameOver)
+        {
+            _gameOver = gameOver;
+        }
+
+        public void SetCurrentPlayer(string name, string color)
+        {
+            _currentPlayer = name;
+            _currentPlayerColor = color;
+        }
+
+        public void SetWinner(string name)
+        {
+            _winner = name;
         }
     }
 }
