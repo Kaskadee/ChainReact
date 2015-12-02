@@ -18,7 +18,7 @@ namespace ChainReact.Core.Game
         public GameQueue Queue { get; }
 
         public Player CurrentPlayer { get; private set; }
-        public List<Player> Players { get; }
+        public List<Player> Players { get; private set; }
 
         public bool GameOver { get; private set; }
         public string Message { get; private set; }
@@ -161,9 +161,7 @@ namespace ChainReact.Core.Game
                 }
             }
             return false;
-        }
-
-       
+        }        
     }
 
     public enum GameState

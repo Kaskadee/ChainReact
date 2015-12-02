@@ -36,8 +36,6 @@ namespace ChainReact
         private Map _map;
         private Server _internalServer;
         private NetworkPeer _clientPeer;
-
-        private Dictionary<string, Action<string>> _registeredCommands;
         #endregion
 
         #region Components
@@ -66,7 +64,7 @@ namespace ChainReact
         private bool _gameOver;
         #endregion
 
-        public bool IsReady => _statusCode == 200;
+        private GameQueue _queue;
 
         public override void Setup(LaunchParameters launchParameters)
         {
@@ -99,6 +97,7 @@ namespace ChainReact
 
         public override void LoadContent()
         {
+            _queue = new GameQueue();
             _gameField = TextureUtilities.CreateTextureFromColor(64, 64, Color.Gray);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
@@ -127,14 +126,12 @@ namespace ChainReact
 
             ResourceManager.Instance.ImportResource("Explosion", explosion);
 
-            _registeredCommands = new Dictionary<string, Action<string>>();
-            var defaultCommands = new DefaultCommands(this);
-            defaultCommands.RegisterCommands();
-
             _clientPeer = new NetworkPeer(NetworkPeer.Protocol.Tcp) { MaxReceiveBuffer = 1000000 };
             _clientPeer.Connect(new IPEndPoint(IPAddress.Loopback, 22794));
             _clientPeer.MessageArrived += MessageReceived;
-            _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes("request")));
+            var requestData = new byte[1];
+            requestData[0] = (byte)CommandProtocol.Request;
+            _clientPeer.Send(new OutgoingMessage(requestData));
 
 
             var fullWabeSizeX = ChainReactGame.FullSize * Map.DefaultLengthX;
@@ -158,22 +155,25 @@ namespace ChainReact
 
         public override void Update(GameTime time)
         {
-            //if (_ready)
+            if (_queue.IsActionQueued)
+            {
+                var actions = _queue.GetAllActions();
+                foreach (var act in actions.Select(x => x.Value).SelectMany(actPair => actPair))
+                {
+                    act?.Invoke(time);
+                }
+                return;
+            }
+            //if (!_map.ToList().Any(x => x.Exploding && !x.AnimationManager.AllFinished && x.AnimationManager.IsRunning))
             //{
-            //    var message = "set:1:1";
-            //    _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes(message)));
-            //    var message2 = "set:1:2";
-            //    _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes(message2)));
-            //    _ready = false;
-            //}
-            //if (_game.Queue.IsActionQueued)
-            //{
-            //    var actions = _game.Queue.GetAllActions();
-            //    foreach (var act in actions.Select(x => x.Value).SelectMany(actPair => actPair))
+            //    foreach (var wabe in _map.ToList())
             //    {
-            //        act?.Invoke(time);
+            //        wabe.Exploding = false;
             //    }
-            //    return;
+            //    var bytes = new byte[1];
+            //    bytes[0] = 200;
+            //    var message = AppendProtocol(CommandProtocol.Ready, bytes);
+            //    _clientPeer.Send(new OutgoingMessage(message));
             //}
             _input.Update(time);
             var menu = _input.Menu.Value;
@@ -193,6 +193,13 @@ namespace ChainReact
                     var field = wabe?.ConvertAbsolutePositionToWabeField(_input.Position, ChainReactGame.FullSize);
                     if (field == null) return;
                     Set(wabe.X, wabe.Y, field.Id);
+                }
+            }
+            else
+            {
+                if (_input.Reset)
+                {
+                    Send(CommandProtocol.Restarting, Encoding.UTF8.GetBytes("gameover"));
                 }
             }
         }
@@ -279,13 +286,6 @@ namespace ChainReact
             {
                 batch.DrawString(_currentPlayer + $"'s turn ({_currentPlayerColor})", font, new Vector2(96, 60), Color.Black);
             }
-            if (SceneManager.ActiveScene == null)
-            {
-                //foreach (var wabe in _map.ToList().Where(x => x.AnimationManager.IsRunning).Select(x => x.AnimationManager))
-                //{
-                //    wabe.Draw(batch, time);
-                //}
-            }
             if (_gameOver && !string.IsNullOrEmpty(_winner))
             {
                 var winFont = ResourceManager.Instance.GetResource<SpriteFont>("WinnerFont");
@@ -331,47 +331,23 @@ namespace ChainReact
 
         private void MessageReceived(object sender, IncomingMessageEventArgs e)
         {
-            var isStatusCode = e.Message.Data.Length == 1;
-            if (isStatusCode)
-            {
-                _statusCode = e.Message.Data[0];
-            }
-            else
-            {
-                var msg = Encoding.UTF8.GetString(e.Message.Data);
-                var splitted = msg.Split(':');
-                var command = splitted[0];
-                if (_registeredCommands.ContainsKey(command))
-                {
-                    var val = _registeredCommands[command];
-                    val?.Invoke(msg);
-                }
-                else
-                {
-                    Console.WriteLine($@"The command ""{command}"" is not registered!");
-                }
-            }
+            ClientCommands.HandleCommand(this, e.Message.Data);
         }
 
         private void Set(int x, int y, int fieldId)
         {
-            _clientPeer.Send(new OutgoingMessage(Encoding.UTF8.GetBytes("request")));
-            var messageString = $"set:{x}:{y}:{fieldId}";
-            var message = new OutgoingMessage(Encoding.UTF8.GetBytes(messageString));
+            var messageString = $"{x}|{y}|{fieldId}";
+            var bytes = Encoding.UTF8.GetBytes(messageString);
+            bytes = AppendProtocol(CommandProtocol.SetData, bytes);
+            var message = new OutgoingMessage(bytes);
             _clientPeer.Send(message);
         }
 
-        public void Send(string msg)
+        public void Send(CommandProtocol protocol, byte[] msg)
         {
-            var outgoing = new OutgoingMessage(Encoding.UTF8.GetBytes(msg));
+            msg = AppendProtocol(protocol, msg);
+            var outgoing = new OutgoingMessage(msg);
             _clientPeer.Send(outgoing);
-        }
-
-        public void RegisterCommand(string command, Action<string> act)
-        {
-            if(_registeredCommands.ContainsKey(command))
-                throw new InvalidOperationException(command + " is already registered!");
-            _registeredCommands.Add(command, act);
         }
 
         public void SetMap(Map map)
@@ -398,6 +374,14 @@ namespace ChainReact
         public void SetWinner(string name)
         {
             _winner = name;
+        }
+
+        private byte[] AppendProtocol(CommandProtocol protocol, byte[] bytes)
+        {
+            var newArray = new byte[bytes.Length + 1];
+            bytes.CopyTo(newArray, 1);
+            newArray[0] = (byte) protocol;
+            return newArray;
         }
     }
 }

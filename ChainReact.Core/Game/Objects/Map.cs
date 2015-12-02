@@ -104,13 +104,13 @@ namespace ChainReact.Core.Game.Objects
             return Wabes.Cast<Wabe>().ToList();
         } 
 
-        public string Serialize()
+        public byte[] Serialize()
         {
             var formatter = new BinaryFormatter();
             return formatter.DeepSerialize(this);
         }
 
-        public static Map Deserialize(string serialized)
+        public static Map Deserialize(byte[] serialized)
         {
             var formatter = new BinaryFormatter();
             return (Map) formatter.DeepDeserialize(serialized);

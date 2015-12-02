@@ -123,7 +123,6 @@
     <Compile Include="FrmLoading.Designer.cs">
       <DependentUpon>FrmLoading.cs</DependentUpon>
     </Compile>
-    <Compile Include="GameSettings.cs" />
     <Compile Include="Input\Devices\KeyboardDevice.cs" />
     <Compile Include="Input\Devices\MouseDevice.cs" />
     <Compile Include="Input\IInputController.cs" />
@@ -136,7 +135,7 @@
     <Compile Include="Scenes\MainMenuScene.cs" />
     <Compile Include="Scenes\SettingsScene.cs" />
     <Compile Include="Utilities\TextureUtilities.cs" />
-    <Compile Include="Utilities\DefaultCommands.cs" />
+    <Compile Include="Utilities\ClientCommands.cs" />
     <Compile Include="Utilities\Trigger.cs" />
     <EmbeddedResource Include="FrmLoading.resx">
       <DependentUpon>FrmLoading.cs</DependentUpon>

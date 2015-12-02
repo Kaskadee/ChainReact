@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using ChainReact.Core.Game;
 using ChainReact.Core.Game.Objects;
 using ChainReact.Core.Utilities;
@@ -23,11 +24,11 @@ namespace ChainReact.Core.Server
         private ChainReactGame _game;
 
         public ChainReactGame RemoteGame => _game;
-
-        private Dictionary<string, Action<RemotePeer, string>> _commands = new Dictionary<string, Action<RemotePeer, string>>();
+        public ServerMode Mode { get; private set; }
 
         public Server(ServerMode mode, NetworkPeer.Protocol protocol, int port = 22794)
         {
+            Mode = mode;
             _unusedPlayers = new List<Player>
                 {
                     new Player(1, "Player1", (() => Color.Green)) {Enabled = true},
@@ -53,8 +54,6 @@ namespace ChainReact.Core.Server
                     break;
 
             }
-            var defaultCommands = new ServerCommands(this, _commands);
-            _commands = defaultCommands.RegisterCommands();
             _server = new NetworkPeer(protocol, point, port) { MaxReceiveBuffer = 1000000 };
             _server.PeerJoined += PlayerJoined;
             _server.MessageArrived += MessageReceived;
@@ -96,40 +95,51 @@ namespace ChainReact.Core.Server
             return p;
         }
 
-        public void Send(string message)
+        public void Send(CommandProtocol protocol, byte[] message)
         {
-            var bytes = Encoding.UTF8.GetBytes(message);
-            foreach (var client in _server.Connections)
+            message = AppendProtocol(protocol, message);
+            foreach (var peer in _server.Connections)
             {
-                _server.Send(new OutgoingMessage(bytes), client);
+                _server.Send(new OutgoingMessage(message), peer);
             }
-
         }
 
-        public void Send(string message, RemotePeer peer)
+        public void Send(CommandProtocol protocol, byte[] message, RemotePeer peer)
         {
-            var bytes = Encoding.UTF8.GetBytes(message);
-            _server.Send(new OutgoingMessage(bytes), peer);
+            message = AppendProtocol(protocol, message);
+            _server.Send(new OutgoingMessage(message), peer);
         }
 
-        public void Send(byte status, RemotePeer peer)
+        public Client GetClient(RemotePeer peer)
         {
-            var array = new byte[1];
-            array[0] = status;
-            _server.Send(new OutgoingMessage(array), peer);
+            var client = _clients.FirstOrDefault(t => Equals(t.Peer, peer.RemoteEndPoint));
+            return client;
+        }
+
+        public List<Client> GetClients()
+        {
+            return _clients;
+        }
+
+        public void SetPlayer(Player p, RemotePeer peer)
+        {
+            var client = _clients.FirstOrDefault(t => Equals(t.Peer, peer.RemoteEndPoint));
+            client.Player = p;
+        }
+
+        private byte[] AppendProtocol(CommandProtocol protocol, byte[] bytes)
+        {
+            var newArray = new byte[bytes.Length + 1];
+            bytes.CopyTo(newArray, 1);
+            newArray[0] = (byte)protocol;
+            return newArray;
         }
 
         private void MessageReceived(object sender, IncomingMessageEventArgs e)
         {
-            var msg = Encoding.UTF8.GetString(e.Message.Data);
-            Console.WriteLine(msg);
             var senderPeer = e.Message.RemotePeer;
-
-            if (_commands.ContainsKey(msg))
-            {
-                var act = _commands[msg];
-                act?.Invoke(senderPeer, msg);
-            }
+            var t = new Thread(delegate () { ServerCommands.HandleCommands(this, senderPeer, e.Message.Data); });
+            t.Start();
         }
 
         private void PlayerDisconnected(object sender, PeerDisconnectedEventArgs e)
@@ -139,6 +149,39 @@ namespace ChainReact.Core.Server
             _clients.Remove(client);
             _unusedPlayers.Add(player);
             _game.RemovePlayer(player);
+        }
+
+        public void Restart()
+        {
+            foreach (var player in _game.Players)
+            {
+                player.ExecutedFirstPlace = false;
+                player.Out = false;
+                player.Save();
+            }
+            var newPlayers = GameSettings.Instance.Players;
+            foreach (var player in newPlayers)
+            {
+                player.ExecutedFirstPlace = false;
+                player.Out = false;
+                player.Save();
+            }
+            _game = new ChainReactGame(newPlayers);
+            SendInformations();
+        }
+
+        public void SendInformations()
+        {
+            var serializedMap = RemoteGame.GameMap.Serialize();
+            var currentPlayer =
+                Encoding.UTF8.GetBytes(RemoteGame.CurrentPlayer.Name + "|" +
+                                       RemoteGame.CurrentPlayer.ColorName);
+            var ready = new byte[1];
+            ready[0] = 200;
+            Send(CommandProtocol.GameOverData, Encoding.UTF8.GetBytes("false|null"));
+            Send(CommandProtocol.MapData, serializedMap);
+            Send(CommandProtocol.PlayerData, currentPlayer);
+            Send(CommandProtocol.Ready, ready);
         }
 
         protected virtual void Dispose(bool disposing)

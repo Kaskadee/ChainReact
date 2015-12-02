@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Sharpex2D.Framework.Audio;
 using Sharpex2D.Framework.Audio.WaveOut;
 using Sharpex2D.Framework.Content;
@@ -33,7 +34,6 @@ namespace ChainReact.Core
             var resource = game.Content.Load<T>(path);
              _importedResources.Add(name, resource);
         }
-
 
         public T GetResource<T>(string name) where T : IContent
         {
@@ -82,5 +82,12 @@ namespace ChainReact.Core
         {
             _importedResources.Clear();
         }
+    }
+
+    public class AssetInformations
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public Type Type { get; set; }
     }
 }

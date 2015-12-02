@@ -9,20 +9,19 @@ namespace ChainReact.Core.Utilities
 {
     public static class BinaryFormatterExtensions
     {
-        public static string DeepSerialize<T>(this BinaryFormatter formatter, T obj)
+        public static byte[] DeepSerialize<T>(this BinaryFormatter formatter, T obj)
         {
             using (var ms = new MemoryStream())
             {
                 formatter.Serialize(ms, obj);
                 ms.Seek(0, SeekOrigin.Begin);
-                return Convert.ToBase64String(ms.ToArray());
+                return ms.ToArray();
             }
         }
 
-        public static object DeepDeserialize(this BinaryFormatter formatter, string serialized)
+        public static object DeepDeserialize(this BinaryFormatter formatter, byte[] serialized)
         {
-            var value = Convert.FromBase64String(serialized);
-            using (var ms = new MemoryStream(value))
+            using (var ms = new MemoryStream(serialized))
             {
                 ms.Seek(0, SeekOrigin.Begin);
                 return formatter.Deserialize(ms);

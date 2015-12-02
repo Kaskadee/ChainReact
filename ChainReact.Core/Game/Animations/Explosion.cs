@@ -1,16 +1,25 @@
-﻿using ChainReact.Core.Game.Animations.Base;
+﻿using System;
+using ChainReact.Core.Game.Animations.Base;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
 {
+    [Serializable]
     public class Explosion : IAnimation
     {
         public AnimatedSpriteSheet Sheet { get; }
         public Rectangle Position { get; }
 
+        public bool CreationRequired => Sheet == null;
+
         private Explosion(Texture2D tex, Rectangle position, Rectangle cut)
         {
+            if (tex == null)
+            {
+                Position = position;
+                return;
+            }
             Sheet = new AnimatedSpriteSheet(tex)
             {
                 Rectangle = new Rectangle(0, 0, 32, 32),
@@ -26,8 +35,12 @@ namespace ChainReact.Core.Game.Animations
             }
         }
 
-        public static Explosion CreateNew(Rectangle pos)
+        public static Explosion CreateNew(Rectangle pos, bool createLater = false)
         {
+            if (createLater)
+            {
+                return new Explosion(null, pos, Rectangle.Empty);
+            }
             var explosionTex = ResourceManager.Instance.GetResource<Texture2D>("Explosion");
             var cut = new Rectangle(0, 0, 134, 134);
             var explosion = new Explosion(explosionTex, pos, cut);

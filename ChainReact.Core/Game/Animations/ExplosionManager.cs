@@ -8,12 +8,14 @@ using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
 {
+    [Serializable]
     public sealed class ExplosionManager : IAnimationManager<Explosion>
     {
         private int _completedLoops;
+        [NonSerialized]
+        private SoundEffect _effect;
 
         public Vector2 AbsolutePosition { get; set; }
-        public SoundEffect Sound { get; set; }
         public List<Explosion> Animations { get; }
         public bool IsRelative { get; set; } = true;
 
@@ -25,8 +27,8 @@ namespace ChainReact.Core.Game.Animations
         {
             if (effect != null && ResourceManager.Instance.SoundAvailable)
             {
-                Sound = effect;
-                Sound.Initialize();
+                _effect = effect;
+                _effect.Initialize();
             }
             Animations = animations;
             MaxLoops = loops;
@@ -36,11 +38,11 @@ namespace ChainReact.Core.Game.Animations
         {
             soundError = null;
             IsRunning = true;
-            if (Sound != null && ResourceManager.Instance.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
+            if (_effect != null && ResourceManager.Instance.SoundAvailable && _effect.PlaybackState != PlaybackState.Playing)
             {
                 try
                 {
-                    Sound.Play();
+                    _effect.Play();
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -62,6 +64,16 @@ namespace ChainReact.Core.Game.Animations
             _completedLoops = 0;
             IsRunning = false;
             AllFinished = false;
+        }
+
+        public SoundEffect GetSound()
+        {
+            return _effect;
+        }
+
+        public void SetSound(SoundEffect effect)
+        {
+            _effect = effect;
         }
     
         public void Update(GameTime gameTime)
@@ -102,9 +114,19 @@ namespace ChainReact.Core.Game.Animations
             }
         }
 
-        public Explosion CreateNew(Rectangle rect, bool add)
+        public void RecreateExplosions()
         {
-            var explosion = Explosion.CreateNew(rect);
+            for (var i = Animations.Count - 1; i >= 0; i--)
+            {
+                var ani = Animations[i];
+                ani = Explosion.CreateNew(ani.Position);
+                Animations[i] = ani;
+            }
+        }
+
+        public Explosion CreateNew(Rectangle rect, bool add, bool createLater)
+        {
+            var explosion = Explosion.CreateNew(rect, createLater);
             if (add)
             {
                 Animations.Add(explosion);
