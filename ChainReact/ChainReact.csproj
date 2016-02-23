@@ -136,7 +136,6 @@
     <Compile Include="Scenes\SettingsScene.cs" />
     <Compile Include="Utilities\TextureUtilities.cs" />
     <Compile Include="Utilities\ClientCommands.cs" />
-    <Compile Include="Utilities\Trigger.cs" />
     <EmbeddedResource Include="FrmLoading.resx">
       <DependentUpon>FrmLoading.cs</DependentUpon>
     </EmbeddedResource>

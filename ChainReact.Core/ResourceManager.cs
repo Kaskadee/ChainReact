@@ -73,12 +73,12 @@ namespace ChainReact.Core
             return _importedResources.TryGetValue(name, out resource) ? resource : null;
         }
 
-        public void RemoveResource(string name)
+        public void UnloadResource(string name)
         {
             _importedResources.Remove(name);
         }
 
-        public void ClearAllResources()
+        public void UnloadAll()
         {
             _importedResources.Clear();
         }

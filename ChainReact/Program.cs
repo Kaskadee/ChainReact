@@ -37,7 +37,6 @@ namespace ChainReact
                 Process.Start(Assembly.GetExecutingAssembly().Location, "Debugger Enabled");
                 Environment.Exit(-1);
             }
-
         }
 
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)

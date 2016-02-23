@@ -52,6 +52,7 @@
     <Compile Include="Textbox.cs" />
     <Compile Include="Types\ICheckableControl.cs" />
     <Compile Include="Types\IClickableControl.cs" />
+    <Compile Include="Types\IInputControl.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChainReact.Core\ChainReact.Core.csproj">

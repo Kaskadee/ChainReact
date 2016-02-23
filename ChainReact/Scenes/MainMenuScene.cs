@@ -6,6 +6,7 @@ using ChainReact.UI;
 using ChainReact.UI.Base;
 using ChainReact.UI.Types;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Scenes
@@ -50,7 +51,22 @@ namespace ChainReact.Scenes
                 {
                     checkable.Checked(gameTime);
                 }
+                
                 ElementManager.SetInputState(_input.Controllers.First(t => t.GetType() == typeof(KeyboardDevice)).State);
+               
+            }
+            foreach (
+                    var inputable in
+                        ElementManager.ToArray()
+                            .Where(
+                                control =>
+                                    control is Control && ((Control)control).HasFocus && control is IInputControl)
+                            .Cast<IInputControl>())
+            {
+                var state = Keyboard.GetState();
+                var keys = state.GetPressedKeys();
+                var chr = (keys.Count() < 1) ? (char)0 : (char)keys.FirstOrDefault();
+                inputable.KeyPress(chr);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿namespace ChainReact.Utilities
+﻿namespace ChainReact.Core.Utilities
 {
     public class Trigger
     {

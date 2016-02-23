@@ -1,4 +1,5 @@
-﻿using ChainReact.Utilities;
+﻿using ChainReact.Core.Utilities;
+using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.UI;

@@ -86,9 +86,12 @@
     <Compile Include="Server\CommandProtocol.cs" />
     <Compile Include="Server\Server.cs" />
     <Compile Include="Server\ServerCommands.cs" />
+    <Compile Include="SkinManager.cs" />
     <Compile Include="Utilities\BinaryFormatterExtensions.cs" />
     <Compile Include="Utilities\ColorTextureConverter.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\KeysExtension.cs" />
+    <Compile Include="Utilities\Trigger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

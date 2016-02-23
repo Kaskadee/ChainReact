@@ -100,6 +100,7 @@ namespace ChainReact
             _queue = new GameQueue();
             _gameField = TextureUtilities.CreateTextureFromColor(64, 64, Color.Gray);
             var explosion = Content.Load<Texture2D>("Textures/Explosion");
+            SkinManager.Instance.AddDefaultResource("Background", "Textures/Background.png");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Background", "Textures/Background");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Unpowered", "Textures/Unpowered");
             ResourceManager.Instance.LoadResource<Texture2D>(this, "Powered", "Textures/Powered");

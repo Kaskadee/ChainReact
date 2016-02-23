@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ChainReact.Core.Utilities;
 using ChainReact.Input.Devices;
 using ChainReact.Utilities;
 using Sharpex2D.Framework;

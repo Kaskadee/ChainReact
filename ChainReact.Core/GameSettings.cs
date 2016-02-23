@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using ChainReact.Core.Game.Objects;
 using Sharpex2D.Framework.Rendering;
 
-namespace ChainReact
+namespace ChainReact.Core
 {
     [Serializable]
     public class GameSettings
