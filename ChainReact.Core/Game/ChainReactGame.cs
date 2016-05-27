@@ -11,7 +11,7 @@ namespace ChainReact.Core.Game
 {
     public class ChainReactGame
     {
-        public const float WabeSize = 96.0F;
+        public const float WabeSize = 90.0F;
 
         public GameQueue Queue { get; private set; }
 

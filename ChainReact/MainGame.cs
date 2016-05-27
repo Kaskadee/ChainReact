@@ -41,8 +41,8 @@ namespace ChainReact
             }
             GraphicsManager = new GLGraphicsManager
             {
-                PreferredBackBufferHeight = 768,
-                PreferredBackBufferWidth = 768
+                PreferredBackBufferHeight = 720,
+                PreferredBackBufferWidth = 720
             };
             var window = Get<GameWindow>();
             window.Title = "ChainReact - Development Build";

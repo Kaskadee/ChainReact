@@ -22,7 +22,7 @@ namespace ChainReact.Core.Game.Animations
             }
             Sheet = new AnimatedSpriteSheet(tex)
             {
-                Rectangle = new Rectangle(0, 0, 32, 32),
+                Rectangle = new Rectangle(0, 0, 30, 30),
                 AutoUpdate = true
             };
             Position = position;
