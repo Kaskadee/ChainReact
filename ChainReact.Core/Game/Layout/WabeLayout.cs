@@ -1,17 +1,22 @@
 ﻿using System;
 using ChainReact.Core.Game.Field;
+using Newtonsoft.Json;
 using Sharpex2D.Framework;
 
 namespace ChainReact.Core.Game.Layout
 {
-    [Serializable]
     public class WabeLayout
     {
-        [NonSerialized]
+        [JsonIgnore]
         private readonly Wabe _wabe;
 
         public WabeFieldType[] Fields { get; private set; }
         public WabeDirection Direction { get; }
+
+        private WabeLayout()
+        {
+            
+        }
 
         public WabeLayout(Wabe wabe, WabeDirection direction)
         {

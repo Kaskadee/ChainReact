@@ -114,4 +114,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="IdentityNotCreated" xml:space="preserve">
+    <value>Failed to load identity from disk. The program will exit</value>
+  </data>
+  <data name="ErrorHeader" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="IdentityAccessDenied" xml:space="preserve">
+    <value>Failed to read identity from disk: </value>
+  </data>
 </root>

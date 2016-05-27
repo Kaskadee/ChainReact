@@ -15,6 +15,6 @@ namespace ChainReact.Core.Game.Animations.Base
         void Stop();
         void Reset();
 
-        T CreateNew(Rectangle rect, bool add, bool createLater);
+        T CreateNew(Rectangle rect, bool add);
     }
 }

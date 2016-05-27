@@ -2,50 +2,40 @@
 using System.Linq;
 using ChainReact.Core.Utilities;
 using ChainReact.Input.Devices;
-using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Input
 {
-    public class InputManager : IInputController, IUpdateable
+    public class InputManager :  IUpdateable
     {
-        public List<IInputController> Controllers { get; set; }
-
-        public int Priority { get; }
         public Vector2 Position { get; private set; }
-        public Trigger Clicked { get; }
-        public Trigger Reset { get; }
-        public Trigger Menu { get; }
+        public bool Clicked { get; private set; }
+        public bool Reset { get; private set; }
+        public bool Menu { get; private set; }
+        public bool Refresh { get; private set; }
 
-        public InputState State { get; }
+        private readonly MouseDevice _mouseDevice;
+        private readonly KeyboardDevice _keyboardDevice;
 
         public InputManager()
         {
-            Priority = 0;
-            State = null;
-            Controllers = new List<IInputController> { new MouseDevice(1), new KeyboardDevice(2) };
-            Clicked = new Trigger(false);
-            Reset = new Trigger(false);
-            Menu = new Trigger(false);
+            _mouseDevice = new MouseDevice();
+            _keyboardDevice = new KeyboardDevice();
         }
 
         public void Update(GameTime gameTime)
         {
-            Position = Vector2.Zero;
-            Clicked.SetToFalse();
-            Reset.SetToFalse();
-            foreach (var controller in Controllers.OrderByDescending(c => c.Priority))
-            {
-                controller.Update(gameTime);
-                if (Position.Equals(Vector2.Zero))
-                {
-                    Position = controller.Position;
-                }
-                Clicked.Set(controller.Clicked.Value);
-                Reset.Set(controller.Reset.Value);
-                Menu.Set(controller.Menu.Value);
-            }
+            // Update mouse
+            _mouseDevice.Update(gameTime);
+            Position = _mouseDevice.Position;
+            Clicked = _mouseDevice.Clicked;
+
+            // Update keyboard
+            _keyboardDevice.Update(gameTime);
+            Reset = _keyboardDevice.Reset;
+            Menu = _keyboardDevice.Menu;
+            Refresh = _keyboardDevice.Refresh;
         }
     }
 }

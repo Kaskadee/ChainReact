@@ -45,7 +45,7 @@ namespace ChainReact.Core
 
         public void Load()
         {
-            ResourceManager.Instance.UnloadAll();
+            ResourceManager.UnloadAll();
             
         }
     }

@@ -8,14 +8,12 @@ using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Animations
 {
-    [Serializable]
     public sealed class ExplosionManager : IAnimationManager<Explosion>
     {
         private int _completedLoops;
-        [NonSerialized]
-        private SoundEffect _effect;
 
         public Vector2 AbsolutePosition { get; set; }
+        public SoundEffect Sound { get; set; }
         public List<Explosion> Animations { get; }
         public bool IsRelative { get; set; } = true;
 
@@ -25,10 +23,10 @@ namespace ChainReact.Core.Game.Animations
 
         public ExplosionManager(List<Explosion> animations, int loops, SoundEffect effect)
         {
-            if (effect != null && ResourceManager.Instance.SoundAvailable)
+            if (effect != null && ResourceManager.SoundAvailable)
             {
-                _effect = effect;
-                _effect.Initialize();
+                Sound = effect;
+                Sound.Initialize();
             }
             Animations = animations;
             MaxLoops = loops;
@@ -38,13 +36,13 @@ namespace ChainReact.Core.Game.Animations
         {
             soundError = null;
             IsRunning = true;
-            if (_effect != null && ResourceManager.Instance.SoundAvailable && _effect.PlaybackState != PlaybackState.Playing)
+            if (Sound != null && ResourceManager.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
             {
                 try
                 {
-                    _effect.Play();
+                    Sound.Play();
                 }
-                catch (InvalidOperationException ex)
+                catch (Exception ex)
                 {
                     soundError = ex.Message;
                 }
@@ -66,16 +64,6 @@ namespace ChainReact.Core.Game.Animations
             AllFinished = false;
         }
 
-        public SoundEffect GetSound()
-        {
-            return _effect;
-        }
-
-        public void SetSound(SoundEffect effect)
-        {
-            _effect = effect;
-        }
-    
         public void Update(GameTime gameTime)
         {
             if (!IsRunning) return;
@@ -114,19 +102,9 @@ namespace ChainReact.Core.Game.Animations
             }
         }
 
-        public void RecreateExplosions()
+        public Explosion CreateNew(Rectangle rect, bool add)
         {
-            for (var i = Animations.Count - 1; i >= 0; i--)
-            {
-                var ani = Animations[i];
-                ani = Explosion.CreateNew(ani.Position);
-                Animations[i] = ani;
-            }
-        }
-
-        public Explosion CreateNew(Rectangle rect, bool add, bool createLater)
-        {
-            var explosion = Explosion.CreateNew(rect, createLater);
+            var explosion = Explosion.CreateNew(rect);
             if (add)
             {
                 Animations.Add(explosion);

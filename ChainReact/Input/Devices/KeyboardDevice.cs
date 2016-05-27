@@ -1,37 +1,87 @@
 ﻿using ChainReact.Core.Utilities;
-using ChainReact.Utilities;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Input;
 using Sharpex2D.Framework.UI;
 
 namespace ChainReact.Input.Devices
 {
-    public class KeyboardDevice : IInputController
+    public class KeyboardDevice
     {
-        public int Priority { get; }
-
         public Vector2 Position { get; private set; }
-        public Trigger Clicked { get; }
-        public Trigger Reset { get; }
-        public Trigger Menu { get; }
+        public bool Reset { get; private set; }
+        public bool Menu { get; private set; }
+        public bool Refresh { get; private set; }
+
+        private bool _previousReset;
+        private bool _previousMenu;
+        private bool _previousRefresh;
 
         public InputState State { get; private set; }
-
-        public KeyboardDevice(int priority)
-        {
-            Priority = priority;
-            Clicked = new Trigger(false);
-            Reset = new Trigger(false);
-            Menu = new Trigger(false);
-        }
 
         public void Update(GameTime time)
         {
             var state = Keyboard.GetState();
-            Position = Vector2.Zero;
             State = new InputState(state);
-            Reset.Value = state.IsPressed(Keys.R);
-            Menu.Value = state.IsPressed(Keys.Escape);
+
+            // Escape
+            if (state.IsPressed(Keys.Escape) && !_previousMenu)
+            {
+                _previousMenu = true;
+                Menu = true;
+            }
+            else if (state.IsPressed(Keys.Escape) && _previousMenu)
+            {
+                Menu = false;
+            }
+            else if (!state.IsPressed(Keys.Escape) && _previousMenu)
+            {
+                Menu = false;
+                _previousMenu = false;
+            }
+            else
+            {
+                Menu = false;
+            }
+
+            // Reset
+            if (state.IsPressed(Keys.R) && !_previousReset)
+            {
+                _previousReset = true;
+                Reset = true;
+            }
+            else if (state.IsPressed(Keys.R) && _previousReset)
+            {
+                Reset = false;
+            }
+            else if (!state.IsPressed(Keys.R) && _previousReset)
+            {
+                Reset = false;
+                _previousReset = false;
+            }
+            else
+            {
+                Reset = false;
+            }
+
+            // Refresh
+            if (state.IsPressed(Keys.F5) && !_previousRefresh)
+            {
+                _previousRefresh = true;
+                Refresh = true;
+            }
+            else if (state.IsPressed(Keys.F5) && _previousRefresh)
+            {
+                Refresh = false;
+            }
+            else if (!state.IsPressed(Keys.F5) && _previousRefresh)
+            {
+                Refresh = false;
+                _previousRefresh = false;
+            }
+            else
+            {
+                Refresh = false;
+            }
         }
     }
 }

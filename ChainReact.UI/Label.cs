@@ -8,10 +8,10 @@ namespace ChainReact.UI
 {
     public class Label : Control
     {
-        public Label(Game game, ElementManager elementManager, string text, string font, Color color) : base(game, elementManager)
+        public Label(Game game, string text, string font, Color color) : base(game)
         {
             Text = text;
-            Font = ResourceManager.Instance.GetResource<SpriteFont>(font);
+            Font = ResourceManager.GetResource<SpriteFont>(font);
             Color = color;
         }
 

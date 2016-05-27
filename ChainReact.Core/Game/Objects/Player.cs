@@ -1,100 +1,63 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
+using ChainReact.Core.Utilities;
+using Newtonsoft.Json;
 using Sharpex2D.Framework.Rendering;
 
 namespace ChainReact.Core.Game.Objects
 {
-    [Serializable]
-    public sealed class Player
+    public class Player
     {
-        private FileInfo _saveFileInfo;
-
-        public int Id { get; set; }
+        [JsonProperty("id")]
+        public string Id { get; set; }
+        [JsonProperty("player_name")]
         public string Name { get; set; }
+        [JsonProperty("color")]
         public Color Color { get; set; }
+        [JsonProperty("color_name")]
         public string ColorName { get; set; }
-
-        public int Score { get; set; }
-        public int Wins { get; set; }
-
+        [JsonProperty("win_count")]
+        public ushort Wins { get; set; }
+        [JsonProperty("enabled")]
         public bool Enabled { get; set; }
 
-        [XmlIgnore]
-        public bool ExecutedFirstPlace { get; set; }
-        [XmlIgnore]
-        public bool Out { get; set; }
-
-        private Player()
+        public Player()
         {
-           
+            Id = "0";
+            Name = "0";
+            Color = Color.Transparent;
+            ColorName = "Transparent";
+            Wins = 0;
+            Enabled = false;
         }
 
-        public Player(int id, string name, Expression<Func<Color>> colorExpression)
+        public Player(string id, string name, ColorInformation information)
         {
-            if(id == 0)
-                throw new IndexOutOfRangeException("Id must be greater than 0");
-            var colorFunc = colorExpression.Compile();
-            ColorName = ((MemberExpression) colorExpression.Body).Member.Name;
-            Color = colorFunc.Invoke();
+            if(id == string.Empty || id == Guid.Empty.ToString())
+                throw new ArgumentNullException(nameof(id));
+            Color = information.Color;
+            ColorName = information.ColorName;
             Id = id;
             Name = name;
-            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
 
-        public Player(int id, string name, Expression<Func<Color>> colorExpression, int score, int wins)
+        public Player(string id, string name, ColorInformation information, ushort wins)
         {
-            if (id == 0)
-                throw new IndexOutOfRangeException("Id must be greater than 0");
-            var colorFunc = colorExpression.Compile();
-            ColorName = ((MemberExpression)colorExpression.Body).Member.Name;
-            Color = colorFunc.Invoke();
+            if (id == string.Empty || id == Guid.Empty.ToString())
+                throw new ArgumentNullException(nameof(id));
+            Color = information.Color;
+            ColorName = information.ColorName;
             Id = id;
             Name = name;
-            Score = score;
             Wins = wins;
-            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
 
         public string GetColorString()
         {
             return !string.IsNullOrEmpty(ColorName) ? ColorName : "Unknown";
-        }
-
-        public void Save()
-        {
-            if (Id == 0)
-                throw new IndexOutOfRangeException("Id must be greater than 0");
-
-            if (_saveFileInfo.DirectoryName != null && !Directory.Exists(_saveFileInfo.DirectoryName))
-            {
-                Directory.CreateDirectory(_saveFileInfo.DirectoryName);
-            }
-            if(!_saveFileInfo.Exists) _saveFileInfo.Create().Close();
-            var serializer = new XmlSerializer(typeof(Player));
-            using (var fs = _saveFileInfo.OpenWrite())
-            {
-                fs.SetLength(0);
-                serializer.Serialize(fs, this);
-            }
-        }
-
-        public static Player Load(FileInfo path)
-        {
-            if (path.DirectoryName != null && !Directory.Exists(path.DirectoryName) || !path.Exists) return null;
-            var serializer = new XmlSerializer(typeof(Player));
-            using (var fs = path.OpenRead())
-            {
-                var p = (Player)serializer.Deserialize(fs);
-                p.RefreshFileInfo();
-                return p;
-            }
-        }
-
-        public void RefreshFileInfo()
-        {
-            _saveFileInfo = new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "players/Player" + Id + ".sav");
         }
     }
 }

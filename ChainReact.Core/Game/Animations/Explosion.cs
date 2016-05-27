@@ -41,7 +41,7 @@ namespace ChainReact.Core.Game.Animations
             {
                 return new Explosion(null, pos, Rectangle.Empty);
             }
-            var explosionTex = ResourceManager.Instance.GetResource<Texture2D>("Explosion");
+            var explosionTex = ResourceManager.GetResource<Texture2D>("ExplosionTexture");
             var cut = new Rectangle(0, 0, 134, 134);
             var explosion = new Explosion(explosionTex, pos, cut);
             return explosion;
