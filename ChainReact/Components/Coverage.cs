@@ -2,7 +2,7 @@
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Rendering;
 
-namespace ChainReact.Scenes
+namespace ChainReact.Components
 {
     public class Coverage
     {
@@ -24,7 +24,7 @@ namespace ChainReact.Scenes
 
         private void LoadTexture(Color col)
         {
-            _coverage = ColorTextureConverter.CreateTextureFromColor(32, 32, col);
+            _coverage = TextureUtilities.CreateTextureFromColor(32, 32, col);
         }
     }
 }

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Xml.Serialization;
 using ChainReact.Core.Game.Animations;
 using ChainReact.Core.Game.Layout;
 using ChainReact.Core.Game.Objects;
+using Newtonsoft.Json;
 using Sharpex2D.Framework;
 using Sharpex2D.Framework.Audio;
 
@@ -12,11 +15,12 @@ namespace ChainReact.Core.Game.Field
 {
     public class Wabe
     {
-        private Vector2 _size;
+        private readonly float _size;
         private int _id;
         private int _poweredSpheres;
         private readonly ChainReactGame _game;
 
+        [JsonIgnore]
         public ExplosionManager AnimationManager { get; }
 
         public Player Owner { get; set; }
@@ -26,7 +30,7 @@ namespace ChainReact.Core.Game.Field
         public int X { get; }
         public int Y { get; }
 
-        public WabeField[] Fields { get; }
+        public WabeField[] Fields { get; set; }
 
         public int SphereCount { get; }
 
@@ -48,6 +52,8 @@ namespace ChainReact.Core.Game.Field
             }
         }
 
+        private readonly bool _skipAnimation;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Wabe"/> class.
         /// </summary>
@@ -57,14 +63,15 @@ namespace ChainReact.Core.Game.Field
         /// <param name="y">The y position.</param>
         /// <param name="size">The size of the wabe (Size, ScalingFactor).</param>
         /// <param name="resourceName">The resource name of the explosion sound</param>
-        public Wabe(ChainReactGame game, WabeType type, int x, int y, Vector2 size, string resourceName ="")
+        public Wabe(ChainReactGame game, WabeType type, int x, int y, float size, bool skipExplodeAnimation)
         {
+            _skipAnimation = skipExplodeAnimation;
             _game = game;
             Type = type;
             Fields = new WabeField[9];
             X = x;
             Y = y;
-
+            
             Layout = new WabeLayout(this, new Vector2(0, 5));
             switch (Type)
             {
@@ -91,7 +98,19 @@ namespace ChainReact.Core.Game.Field
                     break;
             }
             _size = size;
-            var sound = ResourceManager.Instance.TryGetResource<SoundEffect>(resourceName);
+            var sound = ResourceManager.TryGetResource<SoundEffect>("ExplosionSoundEffect");
+            AnimationManager = new ExplosionManager(new List<Explosion>(), 3, sound)
+            {
+                AbsolutePosition = GetPositionOfWabeCenter(),
+                IsRelative = true
+            };         
+            PopulateExplosionManager();
+        }
+
+        private Wabe()
+        {
+            Fields = new WabeField[9];
+            var sound = ResourceManager.TryGetResource<SoundEffect>("ExplosionSoundEffect");
             AnimationManager = new ExplosionManager(new List<Explosion>(), 3, sound)
             {
                 AbsolutePosition = GetPositionOfWabeCenter(),
@@ -102,15 +121,15 @@ namespace ChainReact.Core.Game.Field
 
         private void Explode(GameTime time)
         {
-            if (AnimationManager.AllFinished)
+            if (AnimationManager.AllFinished || _skipAnimation)
             {
-                if (_game.Queue.GetAllActions().ContainsKey(_id))
+                if (_game.Queue.GetAllActions().ContainsKey(_id) && !_skipAnimation)
                 {
                     _game.Queue.Remove(_id);
                     AnimationManager.Reset();
                     PopulateExplosionManager();
                 }
-                var nearWabes = _game.FindNearWabes(X, Y).OrderBy(w => w.X + w.Y);
+                var nearWabes = _game.GameMap.GetNearWabes(X, Y).OrderBy(w => w.X + w.Y);
                 var poweredFields = Fields.ToList().Where(w => w.Type == WabeFieldType.Powered).OrderBy(w => w.Id);
                 var results = new Dictionary<Wabe, WabeField>();
                 _poweredSpheres = 0;
@@ -160,11 +179,11 @@ namespace ChainReact.Core.Game.Field
             }
             else
             {
-                if (!AnimationManager.IsRunning)
+                if (!AnimationManager.IsRunning && !_skipAnimation)
                 {
                     string error;
                     AnimationManager.Start(out error);
-                    ResourceManager.Instance.LastSoundError = error;
+                    ResourceManager.LastSoundError = error;
                     var actionList = new List<Action<GameTime>> { Explode, AnimationManager.Update };
                     _id = _game.Queue.Add(actionList);
                 }
@@ -210,7 +229,7 @@ namespace ChainReact.Core.Game.Field
             var powerableWabeFields = Fields.Where(f => f.Type == WabeFieldType.Powered || f.Type == WabeFieldType.Unpowered).ToList();
             for (var i = powerableWabeFields.Count - 1; i >= 0; i--)
             {
-               
+
                 var wabeField = powerableWabeFields[i];
                 var dict = new Dictionary<int, Vector2>
                 {
@@ -228,14 +247,11 @@ namespace ChainReact.Core.Game.Field
 
         public Vector2 GetPositionOfWabeCenter()
         {
-            var wabesize = _size.X;
-            var scalingfactor = _size.Y;
-            var fullsize = wabesize * scalingfactor;
-            var thirdsize = fullsize / 3;
+            var thirdsize = _size / 3;
             var x = X;
             var y = Y;
-            var absoluteX = (x * fullsize) + fullsize;
-            var absoluteY = (y * fullsize) + fullsize;
+            var absoluteX = (x * _size) + _size;
+            var absoluteY = (y * _size) + _size;
             return new Vector2(absoluteX + thirdsize, absoluteY + thirdsize);
         }
 

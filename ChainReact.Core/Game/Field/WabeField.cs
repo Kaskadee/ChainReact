@@ -12,6 +12,11 @@ namespace ChainReact.Core.Game.Field
             Id = id;
             Type = type;
         }
+
+        private WabeField()
+        {
+            
+        }
     }
 
     public enum WabeFieldType

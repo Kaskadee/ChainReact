@@ -23,7 +23,7 @@ namespace ChainReact.Core.Game.Animations
 
         public ExplosionManager(List<Explosion> animations, int loops, SoundEffect effect)
         {
-            if (effect != null && ResourceManager.Instance.SoundAvailable)
+            if (effect != null && ResourceManager.SoundAvailable)
             {
                 Sound = effect;
                 Sound.Initialize();
@@ -36,13 +36,13 @@ namespace ChainReact.Core.Game.Animations
         {
             soundError = null;
             IsRunning = true;
-            if (Sound != null && ResourceManager.Instance.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
+            if (Sound != null && ResourceManager.SoundAvailable && Sound.PlaybackState != PlaybackState.Playing)
             {
                 try
                 {
                     Sound.Play();
                 }
-                catch (InvalidOperationException ex)
+                catch (Exception ex)
                 {
                     soundError = ex.Message;
                 }
@@ -63,7 +63,7 @@ namespace ChainReact.Core.Game.Animations
             IsRunning = false;
             AllFinished = false;
         }
-    
+
         public void Update(GameTime gameTime)
         {
             if (!IsRunning) return;

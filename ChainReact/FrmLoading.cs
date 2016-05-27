@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Windows.Forms;
 
 namespace ChainReact
@@ -19,7 +13,15 @@ namespace ChainReact
 
         private void FrmLoading_Shown(object sender, EventArgs e)
         {
-            Process.GetCurrentProcess().Refresh();
+            if (!File.Exists("identity.dat"))
+            {
+                var frmIdentity = new FrmCreateIdentity();
+                frmIdentity.ShowDialog(this);
+                if (!File.Exists("identity.dat"))
+                {
+                    Environment.Exit(-1);
+                }
+            }
             var game = new MainGame();
             game.Run();
         }

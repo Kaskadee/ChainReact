@@ -17,11 +17,11 @@ namespace ChainReact.UI
         private readonly Texture2D _texture;
         private readonly Texture2D _hoveredTexture;
 
-        public Button(Game game, ElementManager elementManager, string button, string hovered, string font) : base(game, elementManager)
+        public Button(Game game, string button, string hovered, string font) : base(game)
         {
-            Font = ResourceManager.Instance.GetResource<SpriteFont>(font);
-            _texture = ResourceManager.Instance.GetResource<Texture2D>(button);
-            _hoveredTexture = ResourceManager.Instance.GetResource<Texture2D>(hovered);
+            Font = ResourceManager.GetResource<SpriteFont>(font);
+            _texture = ResourceManager.GetResource<Texture2D>(button);
+            _hoveredTexture = ResourceManager.GetResource<Texture2D>(hovered);
         }
 
         public override void Update(GameTime gameTime)

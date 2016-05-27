@@ -16,15 +16,15 @@ namespace ChainReact.UI
 
         public event EventHandler OnCheckedChanged;
 
-        public Checkbox(Game game, ElementManager elementManager, string checkedTex, string uncheckedTex, string text, string font) : base(game, elementManager)
+        public Checkbox(Game game, string checkedTex, string uncheckedTex, string text, string font) : base(game)
         {
             Textures = new Texture2D[4];
-            Textures[0] = ResourceManager.Instance.GetResource<Texture2D>(checkedTex);
-            Textures[1] = ResourceManager.Instance.GetResource<Texture2D>(uncheckedTex);
-            Textures[2] = ResourceManager.Instance.GetResource<Texture2D>(checkedTex).Grayscale();
-            Textures[3] = ResourceManager.Instance.GetResource<Texture2D>(uncheckedTex).Grayscale();
+            Textures[0] = ResourceManager.GetResource<Texture2D>(checkedTex);
+            Textures[1] = ResourceManager.GetResource<Texture2D>(uncheckedTex);
+            Textures[2] = ResourceManager.GetResource<Texture2D>(checkedTex).Grayscale();
+            Textures[3] = ResourceManager.GetResource<Texture2D>(uncheckedTex).Grayscale();
             Text = text;
-            Font = ResourceManager.Instance.GetResource<SpriteFont>(font);
+            Font = ResourceManager.GetResource<SpriteFont>(font);
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime time)
@@ -32,7 +32,7 @@ namespace ChainReact.UI
             if (!Visible) return;
             var tex = (IsChecked) ? Textures[0] : Textures[1];
             tex = (Enabled) ? tex : (IsChecked) ? Textures[2] : Textures[3];
-            spriteBatch.DrawTexture(tex, Bounds, Color.White);
+            spriteBatch.DrawTexture(tex, new Rectangle(Position.X, Position.Y, Size.Width, Size.Height), Color.White);
             spriteBatch.DrawString(Text, Font, new Vector2(Position.X + 35, Position.Y + 5), Color);
         }
 

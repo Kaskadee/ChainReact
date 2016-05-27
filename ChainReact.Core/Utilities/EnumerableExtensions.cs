@@ -4,11 +4,11 @@ using ChainReact.Core.Game.Objects;
 
 namespace ChainReact.Core.Utilities
 {
-    public static class EnumerableExt
+    public static class EnumerableExtensions
     {
-        public static Player NextOfPlayer(this IList<Player> players, Player item)
+        public static Player NextOfPlayer(this IList<Player> players, Player item, Dictionary<Player, bool> isOut )
         {
-            var list = players.Where(t => !t.Out).ToList();
+            var list = players.Where(t => !isOut[t]).ToList();
             return list[(list.IndexOf(item) + 1) == list.Count ? 0 : (list.IndexOf(item) + 1)];
         }
 

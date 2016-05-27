@@ -7,11 +7,12 @@ using ChainReact.UI;
 using ChainReact.UI.Base;
 using ChainReact.UI.Types;
 using Sharpex2D.Framework;
+using Sharpex2D.Framework.Content;
 using Sharpex2D.Framework.Rendering;
 
-namespace ChainReact.Scenes
+namespace ChainReact.Components
 {
-    public class SettingsScene : Scene
+    public class SettingsComponent : DrawableGameComponent
     {
         private readonly Game _game;
         private readonly InputManager _input;
@@ -31,137 +32,149 @@ namespace ChainReact.Scenes
         private Label _errorLabel;
         private Button _backButton;
 
-        private readonly Scene _mainMenuScene;
+        private readonly List<Control> _registeredControls = new List<Control>();
 
         private readonly Coverage _blueCoverage = new Coverage(new Color(0, 71, 171, 255));
 
-        public SettingsScene(Game game, InputManager input, Scene mainMenu)
+        public SettingsComponent(Game game, InputManager input) : base(game)
         {
             _game = game;
             _input = input;
-            _mainMenuScene = mainMenu;
-            LoadContent();
+            LoadContent(_game.Content);
         }
 
-        public override void OnUpdate(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
-            foreach (var control in ElementManager.ToArray())
+            if (_input.Menu)
+            {
+                Visible = false;
+            }
+
+            foreach (var control in _registeredControls)
             {
                 control.Update(gameTime);
             }
            
-            if (_input.Clicked.Value)
+            if (_input.Clicked)
             {
                 foreach (
                     var clickable in
-                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && ((Control)control).Visible && ((Control)control).Enabled && control is IClickableControl).Cast<IClickableControl>())
+                        _registeredControls.Where(control => control.IsHovered && control.Visible && control.Enabled && control is IClickableControl).Cast<IClickableControl>())
                 {
                     clickable.Clicked(gameTime);
                 }
                 foreach (
                     var checkable in
-                        ElementManager.ToArray().Where(control => control is Control && ((Control)control).IsHovered && ((Control)control).Visible && ((Control)control).Enabled && control is ICheckableControl).Cast<ICheckableControl>())
+                        _registeredControls.Where(control => control.IsHovered && control.Visible && control.Enabled && control is ICheckableControl).Cast<ICheckableControl>())
                 {
                     checkable.Checked(gameTime);
                 }
             }
-            if (!ResourceManager.Instance.SoundAvailable)
+            if (!ResourceManager.SoundAvailable)
             {
                 _errorLabel.Text = "No available audio devices where found. " + Environment.NewLine + "Restart the game if you plugged in an audio device.";
             }
             _errorLabel.Visible = !string.IsNullOrEmpty(_errorLabel.Text);
         }
 
-        public override void OnDraw(SpriteBatch spriteBatch, GameTime gameTime)
+        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
             _blueCoverage.DrawField(_game, spriteBatch);
-            foreach (var control in ElementManager.ToArray())
+            foreach (var control in _registeredControls)
             {
                 control.Draw(spriteBatch, gameTime);
             }
         }
 
-        public void LoadContent()
+        public override void LoadContent(ContentManager manager)
         {
-            var font = ResourceManager.Instance.GetResource<SpriteFont>("ButtonFont");
-            ResourceManager.Instance.LoadResource<Texture2D>(_game, "Checkbox", "Textures/CheckboxChecked");
-            ResourceManager.Instance.LoadResource<Texture2D>(_game, "CheckboxUnchecked", "Textures/CheckboxUnchecked");
+            var font = ResourceManager.GetResource<SpriteFont>("ButtonFont");
+            ResourceManager.LoadResource<Texture2D>(_game, "Checkbox", "Textures/CheckboxChecked");
+            ResourceManager.LoadResource<Texture2D>(_game, "CheckboxUnchecked", "Textures/CheckboxUnchecked");
 
             #region Player Checkboxes Init
-            _playerOne = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Player 1 (Green) (Wins: 0)", "ButtonFont")
+            _playerOne = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Player 1 (Green) (Wins: 0)", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 60, 32, 32),
+                Position = new Vector2(25, 60),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Tag = "Player1",
                 IsChecked = true
             };
-            _playerTwo = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Player 2 (Red) (Wins: 0)", "ButtonFont")
+            _playerTwo = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Player 2 (Red) (Wins: 0)", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 110, 32, 32),
+                Position = new Vector2(25, 110),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Tag = "Player2",
                 IsChecked = true
             };
-            _playerThree = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Player 3 (Blue) (Wins: 0)", "ButtonFont")
+            _playerThree = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Player 3 (Blue) (Wins: 0)", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 160, 32, 32),
+                Position = new Vector2(25, 160),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Enabled = true,
                 Tag = "Player3"
             };
-            _playerFour = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Player 4 (Orange) (Wins: 0)", "ButtonFont")
+            _playerFour = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Player 4 (Orange) (Wins: 0)", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 210, 32, 32),
+                Position = new Vector2(25, 210),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Enabled = true,
                 Tag = "Player4"
             };
             #endregion
 
-            _fieldLines = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Field Lines", "ButtonFont")
+            _fieldLines = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Field Lines", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 310, 32, 32),
+                Position = new Vector2(25, 310),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Enabled = true,
                 Tag = "FieldLines"
             };
 
-            _wabeLines = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Wabe Lines", "ButtonFont")
+            _wabeLines = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Wabe Lines", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 360, 32, 32),
+                Position = new Vector2(25, 360),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Enabled = true,
                 Tag = "WabeLines"
             };
 
-            _borderLines = new Checkbox(_game, ElementManager, "Checkbox", "CheckboxUnchecked", "Enable Border Lines", "ButtonFont")
+            _borderLines = new Checkbox(_game, "Checkbox", "CheckboxUnchecked", "Enable Border Lines", "ButtonFont")
             {
-                Bounds = new Rectangle(25, 410, 32, 32),
+                Position = new Vector2(25, 410),
+                Size = new Rectangle(0, 0, 32, 32),
                 Color = Color.White,
                 Enabled = true,
                 Tag = "BorderLines"
             };
 
-            _backButton = new Button(_game, ElementManager, "ButtonExit", "ButtonExitHovered", "ButtonFont")
+            _backButton = new Button(_game, "ButtonExit", "ButtonExitHovered", "ButtonFont")
             {
+                Position = new Vector2(25, 700),
+                Size = new Rectangle(0, 0, 275, 50),
                 Enabled = true,
                 Color = Color.White,
                 Text = "Return to main menu",
-                Bounds = new Rectangle(25, 700, 275, 50)
             };
-
             _backButton.OnClick += (s, e) =>
             {
-                var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
-                _game.SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
-                OnSceneDeactivated();
+                //var fadeInOut = new FadeInOutTransition(Color.Black, 800f, 600f);
+                //_game.SceneManager.ChangeWithTransition(_mainMenuScene, fadeInOut);
+                Visible = false;
             };
 
-            _errorLabel = new Label(_game, ElementManager, "", "DefaultFont", Color.Red)
+            _errorLabel = new Label(_game, "", "DefaultFont", Color.Red)
             {
                 Visible = false,
                 Enabled = true,
-                Bounds = new Rectangle(25, 625, 1, 1)
+                Position = new Vector2(25, 625),
+                Size = new Rectangle(0, 0, 1, 1),
             };
 
             _playerOne.OnCheckedChanged += PlayersChanged;
@@ -180,9 +193,10 @@ namespace ChainReact.Scenes
                 headerTex += "-";
             } while (font.MeasureString(headerTex).X < (_game.Window.ClientSize.X - 60));
 
-            _header = new Label(_game, ElementManager, headerTex, "ButtonFont", Color.White)
+            _header = new Label(_game, headerTex, "ButtonFont", Color.White)
             {
-                Bounds = new Rectangle(25, 25, 1, 1),
+                Position = new Vector2(25, 25),
+                Size = new Rectangle(0, 0, 1, 1),
                 Enabled = true
             };
 
@@ -195,6 +209,20 @@ namespace ChainReact.Scenes
             _playerTwo.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerTwo.Tag).Enabled;
             _playerThree.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerThree.Tag).Enabled;
             _playerFour.IsChecked = GameSettings.Instance.AvailablePlayers.First(t => t.Name == _playerFour.Tag).Enabled;
+
+            _registeredControls.Add(_playerOne);
+            _registeredControls.Add(_playerTwo);
+            _registeredControls.Add(_playerThree);
+            _registeredControls.Add(_playerFour);
+
+            _registeredControls.Add(_fieldLines);
+            _registeredControls.Add(_wabeLines);
+            _registeredControls.Add(_borderLines);
+            _registeredControls.Add(_backButton);
+            _registeredControls.Add(_errorLabel);
+            _registeredControls.Add(_header);
+
+
 
             DisableEnabledCheckboxes();
 

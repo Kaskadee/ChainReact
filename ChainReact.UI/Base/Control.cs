@@ -12,7 +12,6 @@ namespace ChainReact.UI.Base
 
         private MouseState _currentMouseState;
         private Rectangle _mouseRectangle;
-        private readonly ElementManager _manager;
 
         public Game Game { get; protected set; }
 
@@ -24,16 +23,23 @@ namespace ChainReact.UI.Base
         public Rectangle Size { get; set; }
         public bool IsHovered { get; set; }
 
-        protected Control(Game game, ElementManager elementManager)
+        [Obsolete("Use Position and Size instead of Bounds", true)]
+        public new Rectangle Bounds
         {
-            Game = game;
-            _manager = elementManager;
-            elementManager.AddRootElement(this);
+            get
+            {
+                return new Rectangle(Position.X, Position.Y, Size.Width, Size.Height);
+            }
+            set
+            {
+                Position = new Vector2(value.X, value.Y);
+                Size = new Rectangle(0, 0, value.Width, value.Height);
+            }
         }
 
-        public void SetInputState(InputState state)
+        protected Control(Game game)
         {
-            _manager.SetInputState(state);   
+            Game = game;
         }
 
         public override void InputStateReceived(InputState inputState)
@@ -47,12 +53,10 @@ namespace ChainReact.UI.Base
 
         public override void Update(GameTime gameTime)
         {
-            Position = new Vector2(Bounds.X, Bounds.Y);
-            Size = new Rectangle(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
             _currentMouseState = Mouse.GetState();
             _mouseRectangle.X = _currentMouseState.Position.X;
             _mouseRectangle.Y = _currentMouseState.Position.Y;
-            IsHovered = _mouseRectangle.Intersects(Bounds);
+            IsHovered = _mouseRectangle.Intersects(new Rectangle(Position.X, Position.Y, Size.Width, Size.Height));
             base.Update(gameTime);
         }
     }
