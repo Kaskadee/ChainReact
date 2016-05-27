@@ -224,19 +224,19 @@ namespace ChainReact.Components
             if (!string.IsNullOrEmpty(_lastMessage))
             {
                 batch.DrawString(!string.IsNullOrEmpty(_game.Message) ? _game.Message : _lastMessage, _font,
-                    new Vector2(96, 680), Color.Black);
+                    new Vector2(96, 640), Color.Black);
             }
             else
             {
                 if (!string.IsNullOrEmpty(_game.Message))
                 {
-                    batch.DrawString(_game.Message, _font, new Vector2(96, 680), Color.Black);
+                    batch.DrawString(_game.Message, _font, new Vector2(96, 640), Color.Black);
                 }
             }
 
             if (!string.IsNullOrEmpty(ResourceManager.LastSoundError))
             {
-                batch.DrawString("Failed to play a sound: " + ResourceManager.LastSoundError, _font, new Vector2(96, 720), Color.Red);
+                batch.DrawString("Failed to play a sound: " + ResourceManager.LastSoundError, _font, new Vector2(96, 670), Color.Red);
             }
 
             if (_game?.CurrentPlayer != null)
@@ -260,8 +260,8 @@ namespace ChainReact.Components
                 var sizeMsg2 = winFont.MeasureString(msg2);
                 var pos1 = new Vector2(midX - (sizeMsg1.X / 2), midY - (sizeMsg1.Y / 2) - 50);
                 var pos2 = new Vector2(midX - (sizeMsg2.X / 2), midY - (sizeMsg2.Y / 2) + 20);
-                batch.DrawString(msg1, winFont, pos1, Color.Crimson);
-                batch.DrawString(msg2, winFont, pos2, Color.Crimson);
+                batch.DrawString(msg1, winFont, pos1, Color.Black);
+                batch.DrawString(msg2, winFont, pos2, Color.Black);
             }
             batch.End();
             base.Draw(batch, time);
