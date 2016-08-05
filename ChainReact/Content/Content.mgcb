@@ -1,0 +1,93 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/Debug
+/intermediateDir:obj/Debug
+/platform:DesktopGL
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+
+#---------------------------------- Content ---------------------------------#
+
+#begin Sounds/ExplosionSound.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ExplosionSound.mp3
+
+#begin Texts/howtoplay.txt
+/copy:Texts/howtoplay.txt
+
+#begin Textures/Background.png
+/copy:Textures/Background.png
+
+#begin Textures/ButtonExit.png
+/copy:Textures/ButtonExit.png
+
+#begin Textures/ButtonExitHovered.png
+/copy:Textures/ButtonExitHovered.png
+
+#begin Textures/ButtonHTP.png
+/copy:Textures/ButtonHTP.png
+
+#begin Textures/ButtonHTPHovered.png
+/copy:Textures/ButtonHTPHovered.png
+
+#begin Textures/ButtonMenu.png
+/copy:Textures/ButtonMenu.png
+
+#begin Textures/ButtonMenuHovered.png
+/copy:Textures/ButtonMenuHovered.png
+
+#begin Textures/ButtonSettings.png
+/copy:Textures/ButtonSettings.png
+
+#begin Textures/ButtonSettingsHovered.png
+/copy:Textures/ButtonSettingsHovered.png
+
+#begin Textures/CheckboxChecked.png
+/copy:Textures/CheckboxChecked.png
+
+#begin Textures/CheckboxUnchecked.png
+/copy:Textures/CheckboxUnchecked.png
+
+#begin Textures/Default.png
+/copy:Textures/Default.png
+
+#begin Textures/Explosion.png
+/copy:Textures/Explosion.png
+
+#begin Textures/Powered.png
+/copy:Textures/Powered.png
+
+#begin Textures/Unpowered.png
+/copy:Textures/Unpowered.png
+
+#begin Fonts/Default.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Color
+/build:Fonts/Default.spritefont
+
+#begin Fonts/Button.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Color
+/build:Fonts/Button.spritefont
+
+#begin Fonts/DefaultBold.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Color
+/build:Fonts/DefaultBold.spritefont
+
+#begin Fonts/Special.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Color
+/build:Fonts/Special.spritefont
+

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D3C647EC-D6AD-4541-B29C-6AFDF6849493}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ChainReact.Core</RootNamespace>
+    <AssemblyName>ChainReact.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.5.1.1679\lib\net40\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceManager.cs" />
+    <Compile Include="Client\ClientIdentity.cs" />
+    <Compile Include="Utilities\JsonClassSerializer.cs" />
+    <Compile Include="Game\Objects\Player.cs" />
+    <Compile Include="Rendering\ColorInformation.cs" />
+    <Compile Include="Game\ChainReactGame.cs" />
+    <Compile Include="Game\Map.cs" />
+    <Compile Include="Game\GameQueue.cs" />
+    <Compile Include="Game\Field\Wabe.cs" />
+    <Compile Include="Game\Field\WabeField.cs" />
+    <Compile Include="Game\Layout\WabeLayout.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Game\Animation\Base\IAnimation.cs" />
+    <Compile Include="Game\Animation\Base\IAnimationManager.cs" />
+    <Compile Include="Game\Animation\Explosion.cs" />
+    <Compile Include="Game\Animation\ExplosionManager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Client\" />
+    <Folder Include="Utilities\" />
+    <Folder Include="Game\" />
+    <Folder Include="Game\Objects\" />
+    <Folder Include="Rendering\" />
+    <Folder Include="Game\Field\" />
+    <Folder Include="Game\Layout\" />
+    <Folder Include="Game\Animation\" />
+    <Folder Include="Game\Animation\Base\" />
+  </ItemGroup>
+</Project>
